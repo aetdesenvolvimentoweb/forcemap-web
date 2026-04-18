@@ -5,55 +5,44 @@
   let { form }: { form: ActionData } = $props();
 </script>
 
-<div class="flex min-h-screen items-center justify-center bg-green-100">
+<div class="flex min-h-screen items-center justify-center bg-base-200 p-4">
   <form
     method="POST"
     use:enhance
-    class="mx-auto w-full max-w-md space-y-4 rounded-lg border border-gray-300 bg-white p-6 shadow"
+    class="w-full max-w-sm space-y-4 rounded-xl bg-base-100 p-6 shadow-lg md:max-w-md md:p-8"
   >
-    <h1 class="text-xl font-semibold text-gray-800">
-      Entre com suas credenciais
-    </h1>
+    <h1 class="text-lg font-semibold md:text-xl">Entre com suas credenciais</h1>
 
     {#if form?.message}
-      <p class="rounded bg-red-100 px-3 py-2 text-sm text-red-700">
-        {form.message}
-      </p>
+      <div role="alert" class="alert alert-error text-sm">
+        <span>{form.message}</span>
+      </div>
     {/if}
 
-    <div>
-      <label class="block text-sm font-medium text-gray-900" for="rg">
-        RG (somente números)
-      </label>
+    <fieldset class="fieldset">
+      <legend class="fieldset-legend">RG (somente números)</legend>
       <input
-        class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-indigo-500 focus:outline-none"
+        class="input input-bordered w-full"
         id="rg"
         name="rg"
         type="number"
         placeholder="9999"
         required
       />
-    </div>
+    </fieldset>
 
-    <div>
-      <label class="block text-sm font-medium text-gray-900" for="password"
-        >Senha</label
-      >
+    <fieldset class="fieldset">
+      <legend class="fieldset-legend">Senha</legend>
       <input
-        class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-indigo-500 focus:outline-none"
+        class="input input-bordered w-full"
         id="password"
         name="password"
         type="password"
         placeholder="••••••••"
         required
       />
-    </div>
+    </fieldset>
 
-    <button
-      class="block w-full rounded-lg bg-indigo-600 px-12 py-3 text-sm font-medium text-white transition-colors hover:bg-indigo-700"
-      type="submit"
-    >
-      Entrar
-    </button>
+    <button class="btn btn-primary w-full" type="submit">Entrar</button>
   </form>
 </div>

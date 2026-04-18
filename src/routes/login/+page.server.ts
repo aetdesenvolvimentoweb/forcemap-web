@@ -1,11 +1,11 @@
 import { fail, redirect } from "@sveltejs/kit";
+import { getApiUrl, isProd } from "$lib/server/api";
 import type { Actions } from "./$types";
 
 export const actions: Actions = {
   default: async ({ request, cookies, platform }) => {
-    const env = platform?.env as Record<string, string> | undefined;
-    const apiUrl = env?.API_URL ?? "http://localhost:3333";
-    const isProd = !!env?.API_URL;
+    const apiUrl = getApiUrl(platform);
+    const secure = isProd(platform);
 
     const data = await request.formData();
     const rg = Number(data.get("rg"));
@@ -29,7 +29,7 @@ export const actions: Actions = {
 
     cookies.set("access_token", body.accessToken, {
       httpOnly: true,
-      secure: isProd,
+      secure: secure,
       sameSite: "lax",
       path: "/",
       maxAge: body.expiresIn,
@@ -37,7 +37,7 @@ export const actions: Actions = {
 
     cookies.set("refresh_token", body.refreshToken, {
       httpOnly: true,
-      secure: isProd,
+      secure: secure,
       sameSite: "lax",
       path: "/",
       maxAge: 60 * 60 * 24 * 7,

@@ -4,12 +4,16 @@
   let { data }: { data: PageData } = $props();
 </script>
 
-<h1>Bem-vindo, {data.user?.role}</h1>
-<form method="POST" action="?/logout">
-  <button
-    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-    type="submit"
-  >
-    Sair
-  </button>
-</form>
+<div class="space-y-4">
+  <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+    <h2 class="text-xl font-bold md:text-2xl">
+      Bem-vindo, <span class="badge badge-primary badge-lg">{data.user?.role}</span>
+    </h2>
+
+    <form method="POST" action="?/logout">
+      <button class="btn btn-error btn-outline btn-sm w-full sm:w-auto" type="submit">
+        Sair
+      </button>
+    </form>
+  </div>
+</div>
