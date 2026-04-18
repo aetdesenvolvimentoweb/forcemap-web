@@ -1,7 +1,4 @@
 <script lang="ts">
-  import type { Snippet } from "svelte";
-
-  let { children }: { children: Snippet } = $props();
   let menuOpen = $state(false);
 
   const navItems = [
@@ -88,14 +85,6 @@
         </div>
       </div>
     </header>
-
-    <main class="flex-1 p-4 md:p-6 lg:p-8">
-      {@render children()}
-    </main>
-
-    <footer class="bg-base-200 p-4 text-center text-sm text-base-content/60">
-      ForceMap &copy; {new Date().getFullYear()}
-    </footer>
   </div>
 
   <!-- Mobile: menu lateral -->
