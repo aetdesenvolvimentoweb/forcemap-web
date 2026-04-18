@@ -1,6 +1,6 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
-  import type { ActionData } from "./$types";
+  import type { ActionData } from "../$types";
 
   let { form }: { form: ActionData } = $props();
 </script>
@@ -11,10 +11,14 @@
     use:enhance
     class="mx-auto w-full max-w-md space-y-4 rounded-lg border border-gray-300 bg-white p-6 shadow"
   >
-    <h1 class="text-xl font-semibold text-gray-800">Entre com suas credenciais</h1>
+    <h1 class="text-xl font-semibold text-gray-800">
+      Entre com suas credenciais
+    </h1>
 
     {#if form?.message}
-      <p class="rounded bg-red-100 px-3 py-2 text-sm text-red-700">{form.message}</p>
+      <p class="rounded bg-red-100 px-3 py-2 text-sm text-red-700">
+        {form.message}
+      </p>
     {/if}
 
     <div>
@@ -32,7 +36,9 @@
     </div>
 
     <div>
-      <label class="block text-sm font-medium text-gray-900" for="password">Senha</label>
+      <label class="block text-sm font-medium text-gray-900" for="password"
+        >Senha</label
+      >
       <input
         class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-indigo-500 focus:outline-none"
         id="password"
