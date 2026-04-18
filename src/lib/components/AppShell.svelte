@@ -1,4 +1,7 @@
 <script lang="ts">
+  import type { Military } from "$lib/types";
+
+  let { children, user }: { children?: () => any; user: Military } = $props();
   let menuOpen = $state(false);
 
   const navItems = [
@@ -17,14 +20,20 @@
   />
 
   <div class="drawer-content flex min-h-screen flex-col">
-    <header class="navbar bg-base-100 shadow-sm px-4 sticky top-0 z-10">
+    <header
+      class="navbar bg-primary text-primary-content px-4 sticky top-0 z-10 md:min-h-36"
+    >
       <!-- Logo -->
       <div class="flex-1 md:flex-none">
-        <a
-          href="/obm"
-          class="btn btn-ghost text-xl font-bold md:text-2xl tracking-tight"
-        >
-          ForceMap
+        <a href="/obm" class="btn btn-ghost gap-2 px-2">
+          <img
+            src="/images/logo.png"
+            alt="ForceMap"
+            class="md:h-32 w-auto hidden md:block drop-shadow-[0_2px_6px_rgba(255,255,255,0.6)]"
+          />
+          <span class="text-lg font-bold tracking-tight text-white md:hidden"
+            >ForceMap</span
+          >
         </a>
       </div>
 
@@ -77,14 +86,20 @@
           <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
           <ul
             tabindex="0"
-            class="menu menu-sm dropdown-content bg-base-100 rounded-box shadow z-10 mt-3 w-48 p-2"
+            class="menu menu-sm dropdown-content bg-base-100 rounded-box shadow z-10 mt-3 w-56 p-2"
           >
+            <li class="menu-title text-base-content">
+              {user.militaryRank?.abbreviation}
+              {user.name}
+            </li>
+            <div class="divider my-0"></div>
             <li><a href="/obm/alterar-senha">Alterar senha</a></li>
             <li><a href="/logout" class="text-error">Sair</a></li>
           </ul>
         </div>
       </div>
     </header>
+    {@render children?.()}
   </div>
 
   <!-- Mobile: menu lateral -->
@@ -92,9 +107,15 @@
     <label for="mobile-drawer" aria-label="Fechar menu" class="drawer-overlay"
     ></label>
     <aside class="bg-base-100 min-h-full w-64 p-4 flex flex-col gap-2">
-      <a href="/obm" class="text-lg font-bold tracking-tight mb-4 block"
-        >ForceMap</a
+      <a
+        href="/obm"
+        class="flex flex-col justify-center items-center gap-3 mb-4"
       >
+        <img src="/images/logo.jpeg" alt="ForceMap" class="h-32 w-auto" />
+        <span class="text-xl font-bold tracking-tight text-primary"
+          >ForceMap</span
+        >
+      </a>
       <ul class="menu w-full p-0">
         {#each navItems as item}
           <li>

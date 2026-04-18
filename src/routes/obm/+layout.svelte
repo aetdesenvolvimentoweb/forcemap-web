@@ -1,17 +1,17 @@
 <script lang="ts">
   import "../../app.css";
-  import AppHeader from "$lib/components/AppHeader.svelte";
+  import AppShell from "$lib/components/AppShell.svelte";
+  import type { LayoutProps } from "./$types";
 
-  let { children } = $props();
+  let { children, data }: LayoutProps = $props();
 </script>
 
-<div>
-  <AppHeader />
+<AppShell user={data.user}>
   <main class="flex-1 p-4 md:p-6 lg:p-8">
     {@render children()}
   </main>
 
-  <footer class="bg-base-200 p-4 text-center text-sm text-base-content/60">
+  <footer class="bg-primary text-primary-content p-4 text-center text-sm">
     ForceMap &copy; {new Date().getFullYear()}
   </footer>
-</div>
+</AppShell>
