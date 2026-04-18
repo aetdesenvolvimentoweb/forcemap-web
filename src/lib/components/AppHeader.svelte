@@ -5,9 +5,9 @@
   let menuOpen = $state(false);
 
   const navItems = [
-    { label: "Postos/Graduações", href: "/postos-graduacoes" },
-    { label: "Efetivo", href: "/efetivo" },
-    { label: "Viaturas", href: "/viaturas" },
+    { label: "Postos/Graduações", href: "/obm/postos-graduacoes" },
+    { label: "Efetivo", href: "/obm/efetivo" },
+    { label: "Viaturas", href: "/obm/viaturas" },
   ];
 </script>
 
@@ -24,8 +24,8 @@
       <!-- Logo -->
       <div class="flex-1 md:flex-none">
         <a
-          href="/dashboard"
-          class="btn btn-ghost text-lg font-bold tracking-tight"
+          href="/obm"
+          class="btn btn-ghost text-xl font-bold md:text-2xl tracking-tight"
         >
           ForceMap
         </a>
@@ -82,7 +82,7 @@
             tabindex="0"
             class="menu menu-sm dropdown-content bg-base-100 rounded-box shadow z-10 mt-3 w-48 p-2"
           >
-            <li><a href="/dashboard/alterar-senha">Alterar senha</a></li>
+            <li><a href="/obm/alterar-senha">Alterar senha</a></li>
             <li><a href="/logout" class="text-error">Sair</a></li>
           </ul>
         </div>
@@ -103,7 +103,7 @@
     <label for="mobile-drawer" aria-label="Fechar menu" class="drawer-overlay"
     ></label>
     <aside class="bg-base-100 min-h-full w-64 p-4 flex flex-col gap-2">
-      <a href="/dashboard" class="text-lg font-bold tracking-tight mb-4 block"
+      <a href="/obm" class="text-lg font-bold tracking-tight mb-4 block"
         >ForceMap</a
       >
       <ul class="menu w-full p-0">
@@ -120,7 +120,7 @@
 
       <ul class="menu w-full p-0">
         <li>
-          <a href="/dashboard/alterar-senha" onclick={() => (menuOpen = false)}
+          <a href="/obm/alterar-senha" onclick={() => (menuOpen = false)}
             >Alterar senha</a
           >
         </li>

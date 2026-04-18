@@ -43,6 +43,6 @@ export const actions: Actions = {
       maxAge: 60 * 60 * 24 * 7,
     });
 
-    redirect(303, "/dashboard");
+    redirect(303, "/obm");
   },
 };
