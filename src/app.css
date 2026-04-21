@@ -1,8 +1,5 @@
 @import "tailwindcss";
-
-@plugin "daisyui" {
-  themes: [ "forcemap"];
-}
+@import "daisyui";
 
 @plugin "daisyui/theme" {
   name: "forcemap";
