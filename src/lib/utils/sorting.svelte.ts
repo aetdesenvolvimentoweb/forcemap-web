@@ -30,7 +30,7 @@ export function createSorting<T extends Record<string, any>>(getData: () => T[])
       const cmp =
         typeof aVal === "number" && typeof bVal === "number"
           ? aVal - bVal
-          : String(aVal).localeCompare(String(bVal), "pt-BR");
+          : String(aVal).localeCompare(String(bVal));
 
       return dir === "asc" ? cmp : -cmp;
     });

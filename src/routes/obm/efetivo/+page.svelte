@@ -24,7 +24,7 @@
           (m) =>
             m.name.toLowerCase().includes(search.toLowerCase()) ||
             String(m.rg).includes(search.trim()) ||
-            m.militaryRank?.abbreviation.toLowerCase().includes(search.toLowerCase()),
+            m.militaryRank?.abbreviation?.toLowerCase().includes(search.toLowerCase()),
         ),
   );
 

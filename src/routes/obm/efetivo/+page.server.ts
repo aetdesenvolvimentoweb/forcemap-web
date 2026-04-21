@@ -17,7 +17,7 @@ export const load: PageServerLoad = async ({ cookies, platform }) => {
   const { data: military }: { data: Military[] } = await militaryRes.json();
   const { data: ranks }: { data: MilitaryRank[] } = await ranksRes.json();
 
-  return { military, ranks };
+  return { military: military ?? [], ranks: ranks ?? [] };
 };
 
 export const actions: Actions = {

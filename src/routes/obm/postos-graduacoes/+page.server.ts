@@ -13,7 +13,7 @@ export const load: PageServerLoad = async ({ cookies, platform }) => {
 
   const { data: ranks }: { data: MilitaryRank[] } = await response.json();
 
-  return { ranks };
+  return { ranks: ranks ?? [] };
 };
 
 export const actions: Actions = {
