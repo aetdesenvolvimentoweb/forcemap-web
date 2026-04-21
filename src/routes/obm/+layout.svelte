@@ -1,5 +1,4 @@
 <script lang="ts">
-  import "../../app.css";
   import AppShell from "$lib/components/AppShell.svelte";
   import type { LayoutProps } from "./$types";
 
