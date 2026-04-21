@@ -101,8 +101,12 @@
               {user.name}
             </li>
             <div class="divider my-0"></div>
-            <li><a href="/obm/alterar-senha">Alterar senha</a></li>
-            <li><a href="/logout" class="text-error">Sair</a></li>
+            <li>
+              <a class="text-base-content text-sm" href="/obm/alterar-senha"
+                >Alterar senha</a
+              >
+            </li>
+            <li><a href="/logout" class="text-error text-sm">Sair</a></li>
           </ul>
         </div>
       </div>

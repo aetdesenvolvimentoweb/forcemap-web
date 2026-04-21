@@ -1,98 +1,141 @@
 <script lang="ts">
   import { Pencil, Trash2 } from "lucide-svelte";
+  import ConfirmModal from "$lib/components/ConfirmModal.svelte";
+  import DataTable from "$lib/components/DataTable.svelte";
+  import FormModal from "$lib/components/FormModal.svelte";
+  import PageToolbar from "$lib/components/PageToolbar.svelte";
+  import SortHeader from "$lib/components/SortHeader.svelte";
+  import { createSorting } from "$lib/utils/sorting.svelte";
+  import type { MilitaryRank } from "$lib/types";
   import type { PageProps } from "./$types";
 
   let { data }: PageProps = $props();
+
+  let formDialog = $state<HTMLDialogElement>();
+  let deleteDialog = $state<HTMLDialogElement>();
+  let selected = $state<MilitaryRank | null>(null);
+  let mode = $state<"create" | "edit">("create");
+  let search = $state("");
+
+  let filtered = $derived(
+    search.trim() === ""
+      ? data.ranks
+      : data.ranks.filter(
+          (r) =>
+            r.abbreviation.toLowerCase().includes(search.toLowerCase()) ||
+            String(r.order).includes(search.trim()),
+        ),
+  );
+
+  const sorting = createSorting(() => filtered);
+
+  function openCreate() {
+    selected = null;
+    mode = "create";
+    formDialog?.showModal();
+  }
+
+  function openEdit(rank: MilitaryRank) {
+    selected = rank;
+    mode = "edit";
+    formDialog?.showModal();
+  }
+
+  function openDelete(rank: MilitaryRank) {
+    selected = rank;
+    deleteDialog?.showModal();
+  }
 </script>
 
 <div class="flex flex-col gap-4">
-  <h2 class="text-lg font-bold md:text-xl">Postos/Graduações</h2>
+  <PageToolbar
+    title="Postos/Graduações"
+    newLabel="Novo Posto/Graduação"
+    onNew={openCreate}
+    bind:search
+  />
 
-  <div
-    class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between rounded-2xl border-2 border-base-200 p-4"
-  >
-    <button type="button" class="btn btn-primary w-full sm:w-auto">
-      Novo Posto/Graduação
-    </button>
-    <input
-      type="text"
-      class="input input-bordered w-full sm:w-64"
-      placeholder="Pesquisar..."
-    />
-  </div>
+  <DataTable isEmpty={filtered.length === 0}>
+    {#snippet head()}
+      <SortHeader label="Ordem" field="order" sortKey={sorting.key} sortDir={sorting.dir} onSort={sorting.sortBy} class="w-16" />
+      <SortHeader label="Posto/Graduação" field="abbreviation" sortKey={sorting.key} sortDir={sorting.dir} onSort={sorting.sortBy} />
+      <th class="w-32 text-right">Ações</th>
+    {/snippet}
 
-  <!-- Mobile: cards -->
-  <ul class="flex flex-col gap-2 md:hidden">
-    {#each data.ranks as rank}
-      <li
-        class="flex items-center justify-between rounded-xl border border-base-200 bg-base-100 px-4 py-3"
-      >
-        <div class="flex items-center gap-3">
-          <span class="badge badge-neutral p-2">{rank.order}º</span>
-          <span class="font-medium">{rank.abbreviation}</span>
-        </div>
-        <div class="flex gap-1">
-          <button
-            type="button"
-            class="btn btn-ghost min-h-11 min-w-11"
-            title="Editar"
-            aria-label="Editar"
-          >
-            <Pencil size={18} />
-          </button>
-          <button
-            type="button"
-            class="btn btn-ghost text-error min-h-11 min-w-11"
-            title="Excluir"
-            aria-label="Excluir"
-          >
-            <Trash2 size={18} />
-          </button>
-        </div>
-      </li>
-    {/each}
-  </ul>
-
-  <!-- Desktop: tabela -->
-  <div
-    class="hidden md:block overflow-x-auto rounded-xl border border-base-200"
-  >
-    <table class="table table-zebra w-full">
-      <thead>
+    {#snippet rows()}
+      {#each sorting.sorted as rank}
         <tr>
-          <th class="w-16">Ordem</th>
-          <th>Posto/Graduação</th>
-          <th class="w-32 text-right">Ações</th>
+          <td>{rank.order}º</td>
+          <td>{rank.abbreviation}</td>
+          <td>
+            <div class="flex justify-end gap-1">
+              <button type="button" class="btn btn-ghost min-h-11 min-w-11" title="Editar" aria-label="Editar" onclick={() => openEdit(rank)}>
+                <Pencil size={18} />
+              </button>
+              <button type="button" class="btn btn-ghost text-error min-h-11 min-w-11" title="Excluir" aria-label="Excluir" onclick={() => openDelete(rank)}>
+                <Trash2 size={18} />
+              </button>
+            </div>
+          </td>
         </tr>
-      </thead>
-      <tbody>
-        {#each data.ranks as rank}
-          <tr>
-            <td>{rank.order}º</td>
-            <td>{rank.abbreviation}</td>
-            <td class="text-right">
-              <div class="flex justify-end gap-1">
-                <button
-                  type="button"
-                  class="btn btn-ghost min-h-11 min-w-11"
-                  title="Editar"
-                  aria-label="Editar"
-                >
-                  <Pencil size={18} />
-                </button>
-                <button
-                  type="button"
-                  class="btn btn-ghost text-error min-h-11 min-w-11"
-                  title="Excluir"
-                  aria-label="Excluir"
-                >
-                  <Trash2 size={18} />
-                </button>
-              </div>
-            </td>
-          </tr>
-        {/each}
-      </tbody>
-    </table>
-  </div>
+      {/each}
+    {/snippet}
+
+    {#snippet cards()}
+      {#each sorting.sorted as rank}
+        <li class="flex items-center justify-between rounded-xl border border-base-200 bg-base-100 px-4 py-3">
+          <div class="flex items-center gap-3">
+            <span class="badge badge-neutral p-2">{rank.order}º</span>
+            <span class="font-medium">{rank.abbreviation}</span>
+          </div>
+          <div class="flex gap-1">
+            <button type="button" class="btn btn-ghost min-h-11 min-w-11" title="Editar" aria-label="Editar" onclick={() => openEdit(rank)}>
+              <Pencil size={18} />
+            </button>
+            <button type="button" class="btn btn-ghost text-error min-h-11 min-w-11" title="Excluir" aria-label="Excluir" onclick={() => openDelete(rank)}>
+              <Trash2 size={18} />
+            </button>
+          </div>
+        </li>
+      {/each}
+    {/snippet}
+  </DataTable>
 </div>
+
+<FormModal
+  bind:dialog={formDialog}
+  title={mode === "create" ? "Novo Posto/Graduação" : "Editar Posto/Graduação"}
+  action={mode === "create" ? "?/create" : "?/update"}
+  submitLabel={mode === "create" ? "Criar" : "Salvar alterações"}
+>
+  {#if mode === "edit" && selected}
+    <input type="hidden" name="id" value={selected.id} />
+  {/if}
+
+  <label class="flex flex-col gap-1.5">
+    <span class="text-sm font-medium text-base-content">Ordem hierárquica</span>
+    <input type="number" name="order" class="input input-bordered w-full" placeholder="Ex: 1" value={selected?.order ?? ""} min="1" required />
+    <span class="text-xs text-base-content/50">Define a posição na hierarquia militar</span>
+  </label>
+
+  <label class="flex flex-col gap-1.5">
+    <span class="text-sm font-medium text-base-content">Abreviatura</span>
+    <input type="text" name="abbreviation" class="input input-bordered w-full" placeholder="Ex: Cel, Ten, Sd" value={selected?.abbreviation ?? ""} required />
+    <span class="text-xs text-base-content/50">Sigla usada na identificação do militar</span>
+  </label>
+</FormModal>
+
+<ConfirmModal
+  bind:dialog={deleteDialog}
+  title="Excluir Posto/Graduação"
+  action="?/delete"
+>
+  {#snippet formFields()}
+    <input type="hidden" name="id" value={selected?.id} />
+  {/snippet}
+
+  <p class="text-sm text-base-content">
+    Tem certeza que deseja excluir <strong>{selected?.abbreviation}</strong>?
+  </p>
+  <p class="text-sm text-error font-medium">Esta ação não poderá ser desfeita.</p>
+</ConfirmModal>
