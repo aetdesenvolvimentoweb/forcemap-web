@@ -28,14 +28,24 @@
         class="flex items-center justify-between rounded-xl border border-base-200 bg-base-100 px-4 py-3"
       >
         <div class="flex items-center gap-3">
-          <span class="badge badge-neutral">{rank.order}º</span>
+          <span class="badge badge-neutral p-2">{rank.order}º</span>
           <span class="font-medium">{rank.abbreviation}</span>
         </div>
         <div class="flex gap-1">
-          <button type="button" class="btn btn-ghost min-h-11 min-w-11" title="Editar" aria-label="Editar">
+          <button
+            type="button"
+            class="btn btn-ghost min-h-11 min-w-11"
+            title="Editar"
+            aria-label="Editar"
+          >
             <Pencil size={18} />
           </button>
-          <button type="button" class="btn btn-ghost text-error min-h-11 min-w-11" title="Excluir" aria-label="Excluir">
+          <button
+            type="button"
+            class="btn btn-ghost text-error min-h-11 min-w-11"
+            title="Excluir"
+            aria-label="Excluir"
+          >
             <Trash2 size={18} />
           </button>
         </div>
@@ -62,10 +72,20 @@
             <td>{rank.abbreviation}</td>
             <td class="text-right">
               <div class="flex justify-end gap-1">
-                <button type="button" class="btn btn-ghost min-h-11 min-w-11" title="Editar" aria-label="Editar">
+                <button
+                  type="button"
+                  class="btn btn-ghost min-h-11 min-w-11"
+                  title="Editar"
+                  aria-label="Editar"
+                >
                   <Pencil size={18} />
                 </button>
-                <button type="button" class="btn btn-ghost text-error min-h-11 min-w-11" title="Excluir" aria-label="Excluir">
+                <button
+                  type="button"
+                  class="btn btn-ghost text-error min-h-11 min-w-11"
+                  title="Excluir"
+                  aria-label="Excluir"
+                >
                   <Trash2 size={18} />
                 </button>
               </div>

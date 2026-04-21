@@ -25,7 +25,7 @@
     >
       <!-- Logo -->
       <div class="flex-1 md:flex-none">
-        <a href="/obm" class="btn btn-ghost gap-2 px-2">
+        <a href="/obm" class="px-2">
           <img
             src="/images/logo.png"
             alt="ForceMap"
@@ -60,17 +60,25 @@
       <!-- Desktop: itens centralizados -->
       <nav class="hidden md:flex flex-1 justify-center gap-1">
         {#each navItems as item}
-          <a href={item.href} class="btn btn-ghost btn-sm">{item.label}</a>
+          <a
+            href={item.href}
+            class="btn btn-ghost btn-md border hover:shadow-accent hover:shadow-2xl"
+            >{item.label}</a
+          >
         {/each}
       </nav>
 
       <!-- Desktop: avatar dropdown -->
       <div class="hidden md:flex items-center gap-2">
         <div class="dropdown dropdown-end">
-          <div tabindex="0" role="button" class="btn btn-ghost btn-circle">
+          <div
+            tabindex="0"
+            role="button"
+            class="btn btn-ghost btn-circle border hover:shadow-accent hover:shadow-2xl"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              class="h-5 w-5"
+              class="h-6 w-6"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
