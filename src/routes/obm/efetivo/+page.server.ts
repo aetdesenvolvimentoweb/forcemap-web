@@ -41,9 +41,8 @@ export const actions: Actions = {
     });
 
     if (!response.ok) {
-      return fail(response.status, {
-        message: "Erro ao criar militar",
-      });
+      const body = await response.json().catch(() => ({}));
+      return fail(response.status, { message: body.error ?? "Erro ao criar militar." });
     }
   },
 
@@ -67,9 +66,8 @@ export const actions: Actions = {
     });
 
     if (!response.ok) {
-      return fail(response.status, {
-        message: "Erro ao atualizar militar",
-      });
+      const body = await response.json().catch(() => ({}));
+      return fail(response.status, { message: body.error ?? "Erro ao atualizar militar." });
     }
   },
 

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { tick } from "svelte";
   import { Pencil, Trash2 } from "lucide-svelte";
   import ConfirmModal from "$lib/components/ConfirmModal.svelte";
   import DataTable from "$lib/components/DataTable.svelte";
@@ -14,6 +15,7 @@
   let formDialog = $state<HTMLDialogElement>();
   let deleteDialog = $state<HTMLDialogElement>();
   let selected = $state<Military | null>(null);
+  let selectedRankId = $state("");
   let mode = $state<"create" | "edit">("create");
   let search = $state("");
 
@@ -24,21 +26,29 @@
           (m) =>
             m.name.toLowerCase().includes(search.toLowerCase()) ||
             String(m.rg).includes(search.trim()) ||
-            m.militaryRank?.abbreviation?.toLowerCase().includes(search.toLowerCase()),
+            m.militaryRank?.abbreviation
+              ?.toLowerCase()
+              .includes(search.toLowerCase()),
         ),
   );
 
-  const sorting = createSorting(() => filtered);
+  const sorting = createSorting(() => filtered, { key: "militaryRank.order" });
 
   function openCreate() {
     selected = null;
+    selectedRankId = "";
     mode = "create";
     formDialog?.showModal();
   }
 
-  function openEdit(military: Military) {
+  async function openEdit(military: Military) {
+    selected = null;
+    selectedRankId = "";
+    await tick();
     selected = military;
+    selectedRankId = military.militaryRank.id;
     mode = "edit";
+    await tick();
     formDialog?.showModal();
   }
 
@@ -58,9 +68,27 @@
 
   <DataTable isEmpty={filtered.length === 0}>
     {#snippet head()}
-      <SortHeader label="Posto/Grad." field="militaryRank.order" sortKey={sorting.key} sortDir={sorting.dir} onSort={sorting.sortBy} />
-      <SortHeader label="RG" field="rg" sortKey={sorting.key} sortDir={sorting.dir} onSort={sorting.sortBy} />
-      <SortHeader label="Nome" field="name" sortKey={sorting.key} sortDir={sorting.dir} onSort={sorting.sortBy} />
+      <SortHeader
+        label="Posto/Grad."
+        field="militaryRank.order"
+        sortKey={sorting.key}
+        sortDir={sorting.dir}
+        onSort={sorting.sortBy}
+      />
+      <SortHeader
+        label="RG"
+        field="rg"
+        sortKey={sorting.key}
+        sortDir={sorting.dir}
+        onSort={sorting.sortBy}
+      />
+      <SortHeader
+        label="Nome"
+        field="name"
+        sortKey={sorting.key}
+        sortDir={sorting.dir}
+        onSort={sorting.sortBy}
+      />
       <th class="text-right">Ações</th>
     {/snippet}
 
@@ -72,10 +100,22 @@
           <td>{military.name}</td>
           <td>
             <div class="flex justify-end gap-1">
-              <button type="button" class="btn btn-ghost min-h-11 min-w-11" title="Editar" aria-label="Editar" onclick={() => openEdit(military)}>
+              <button
+                type="button"
+                class="btn btn-ghost min-h-11 min-w-11"
+                title="Editar"
+                aria-label="Editar"
+                onclick={() => openEdit(military)}
+              >
                 <Pencil size={18} />
               </button>
-              <button type="button" class="btn btn-ghost text-error min-h-11 min-w-11" title="Excluir" aria-label="Excluir" onclick={() => openDelete(military)}>
+              <button
+                type="button"
+                class="btn btn-ghost text-error min-h-11 min-w-11"
+                title="Excluir"
+                aria-label="Excluir"
+                onclick={() => openDelete(military)}
+              >
                 <Trash2 size={18} />
               </button>
             </div>
@@ -86,19 +126,35 @@
 
     {#snippet cards()}
       {#each sorting.sorted as military}
-        <li class="flex items-center justify-between rounded-xl border border-base-200 bg-base-100 px-4 py-3">
+        <li
+          class="flex items-center justify-between rounded-xl border border-base-200 bg-base-100 px-4 py-3"
+        >
           <div class="flex items-center gap-3">
-            <span class="badge badge-neutral">{military.militaryRank?.abbreviation}</span>
+            <span class="badge badge-neutral"
+              >{military.militaryRank?.abbreviation}</span
+            >
             <div class="flex flex-col">
               <span class="font-medium text-sm">{military.name}</span>
               <span class="text-xs text-base-content/60">RG {military.rg}</span>
             </div>
           </div>
           <div class="flex gap-1">
-            <button type="button" class="btn btn-ghost min-h-11 min-w-11" title="Editar" aria-label="Editar" onclick={() => openEdit(military)}>
+            <button
+              type="button"
+              class="btn btn-ghost min-h-11 min-w-11"
+              title="Editar"
+              aria-label="Editar"
+              onclick={() => openEdit(military)}
+            >
               <Pencil size={18} />
             </button>
-            <button type="button" class="btn btn-ghost text-error min-h-11 min-w-11" title="Excluir" aria-label="Excluir" onclick={() => openDelete(military)}>
+            <button
+              type="button"
+              class="btn btn-ghost text-error min-h-11 min-w-11"
+              title="Excluir"
+              aria-label="Excluir"
+              onclick={() => openDelete(military)}
+            >
               <Trash2 size={18} />
             </button>
           </div>
@@ -120,12 +176,15 @@
 
   <label class="flex flex-col gap-1.5">
     <span class="text-sm font-medium text-base-content">Posto/Graduação</span>
-    <select name="militaryRankId" class="select select-bordered w-full" required>
-      <option value="" disabled selected={!selected}>Selecione...</option>
+    <select
+      name="militaryRankId"
+      class="select select-bordered w-full"
+      bind:value={selectedRankId}
+      required
+    >
+      <option value="" disabled>Selecione...</option>
       {#each data.ranks as rank}
-        <option value={rank.id} selected={selected?.militaryRankId === rank.id}>
-          {rank.abbreviation}
-        </option>
+        <option value={rank.id}>{rank.abbreviation}</option>
       {/each}
     </select>
   </label>
@@ -136,9 +195,11 @@
       type="number"
       name="rg"
       class="input input-bordered w-full"
-      placeholder="Ex: 12345"
+      placeholder="Ex: 1234"
       value={selected?.rg ?? ""}
       min="1"
+      max="9999"
+      step="1"
       required
     />
   </label>
@@ -149,8 +210,11 @@
       type="text"
       name="name"
       class="input input-bordered w-full"
-      placeholder="Ex: Silva"
+      placeholder="Ex: Santos"
       value={selected?.name ?? ""}
+      maxlength="100"
+      pattern="[a-zA-ZÀ-ÖØ-öø-ÿ]+(\s[a-zA-ZÀ-ÖØ-öø-ÿ]+)*"
+      title="Apenas letras, acentos e espaços simples entre palavras"
       required
     />
   </label>
@@ -166,7 +230,11 @@
   {/snippet}
 
   <p class="text-sm text-base-content">
-    Tem certeza que deseja excluir <strong>{selected?.militaryRank?.abbreviation} {selected?.name}</strong>?
+    Tem certeza que deseja excluir <strong
+      >{selected?.militaryRank?.abbreviation} {selected?.name}</strong
+    >?
   </p>
-  <p class="text-sm text-error font-medium">Esta ação não poderá ser desfeita.</p>
+  <p class="text-sm text-error font-medium">
+    * Esta ação não poderá ser desfeita.
+  </p>
 </ConfirmModal>

@@ -2,9 +2,12 @@ function getVal(obj: Record<string, any>, key: string): unknown {
   return key.split(".").reduce((o, k) => o?.[k], obj);
 }
 
-export function createSorting<T extends Record<string, any>>(getData: () => T[]) {
-  let key = $state<string | null>(null);
-  let dir = $state<"asc" | "desc">("asc");
+export function createSorting<T extends Record<string, any>>(
+  getData: () => T[],
+  initial?: { key: string; dir?: "asc" | "desc" },
+) {
+  let key = $state<string | null>(initial?.key ?? null);
+  let dir = $state<"asc" | "desc">(initial?.dir ?? "asc");
 
   function sortBy(newKey: string) {
     if (key === newKey) {

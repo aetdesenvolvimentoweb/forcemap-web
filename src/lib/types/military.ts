@@ -6,8 +6,7 @@ export type MilitaryRank = {
 
 export type Military = {
   id: string;
-  militaryRankId: string;
-  militaryRank?: MilitaryRank;
+  militaryRank: MilitaryRank;
   rg: number;
   name: string;
 };
