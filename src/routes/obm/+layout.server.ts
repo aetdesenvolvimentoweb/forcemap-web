@@ -1,4 +1,4 @@
-import { getApiUrl } from "$lib/server/api";
+import { getApiUrl, internalHeaders } from "$lib/server/api";
 import type { Military } from "$lib/types";
 import type { LayoutServerLoad } from "./$types";
 
@@ -9,7 +9,7 @@ export const load: LayoutServerLoad = async ({ locals, cookies, platform }) => {
   const response = await fetch(
     `${apiUrl}/military/${locals.user!.militaryId}`,
     {
-      headers: { Authorization: `Bearer ${accessToken}` },
+      headers: { Authorization: `Bearer ${accessToken}`, ...internalHeaders(platform) },
     },
   );
 
