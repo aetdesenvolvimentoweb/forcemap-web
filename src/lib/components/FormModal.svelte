@@ -15,9 +15,11 @@
     submitLabel?: string;
     children: Snippet;
   } = $props();
+
+  let errorMessage = $state<string | null>(null);
 </script>
 
-<dialog bind:this={dialog} class="modal">
+<dialog bind:this={dialog} class="modal" onclose={() => { errorMessage = null; }}>
   <div class="modal-box p-0 overflow-hidden">
     <div class="bg-primary text-primary-content px-6 py-4 flex items-center justify-between">
       <h3 class="text-base font-semibold tracking-wide">{title}</h3>
@@ -27,12 +29,25 @@
     <form
       method="POST"
       {action}
-      use:enhance={() => async ({ update }) => {
-        await update();
-        dialog?.close();
+      use:enhance={() => async ({ result, update }) => {
+        if (result.type === "failure") {
+          errorMessage = (result.data as { message?: string })?.message ?? "Erro ao salvar.";
+        } else if (result.type === "error") {
+          errorMessage = "Erro de comunicação com o servidor.";
+        } else {
+          errorMessage = null;
+          await update();
+          dialog?.close();
+        }
       }}
     >
       <div class="flex flex-col gap-5 px-6 py-6">
+        {#if errorMessage}
+          <div role="alert" class="alert alert-error py-2 text-sm">
+            <span>{errorMessage}</span>
+          </div>
+        {/if}
+
         {@render children()}
       </div>
 

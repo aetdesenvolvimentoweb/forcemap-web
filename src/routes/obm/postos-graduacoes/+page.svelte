@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { tick } from "svelte";
   import { Pencil, Trash2 } from "lucide-svelte";
   import ConfirmModal from "$lib/components/ConfirmModal.svelte";
   import DataTable from "$lib/components/DataTable.svelte";
@@ -35,9 +36,12 @@
     formDialog?.showModal();
   }
 
-  function openEdit(rank: MilitaryRank) {
+  async function openEdit(rank: MilitaryRank) {
+    selected = null;
+    await tick();
     selected = rank;
     mode = "edit";
+    await tick();
     formDialog?.showModal();
   }
 
@@ -57,8 +61,21 @@
 
   <DataTable isEmpty={filtered.length === 0}>
     {#snippet head()}
-      <SortHeader label="Ordem" field="order" sortKey={sorting.key} sortDir={sorting.dir} onSort={sorting.sortBy} class="w-16" />
-      <SortHeader label="Posto/Graduação" field="abbreviation" sortKey={sorting.key} sortDir={sorting.dir} onSort={sorting.sortBy} />
+      <SortHeader
+        label="Ordem"
+        field="order"
+        sortKey={sorting.key}
+        sortDir={sorting.dir}
+        onSort={sorting.sortBy}
+        class="w-16"
+      />
+      <SortHeader
+        label="Posto/Graduação"
+        field="abbreviation"
+        sortKey={sorting.key}
+        sortDir={sorting.dir}
+        onSort={sorting.sortBy}
+      />
       <th class="w-32 text-right">Ações</th>
     {/snippet}
 
@@ -69,10 +86,22 @@
           <td>{rank.abbreviation}</td>
           <td>
             <div class="flex justify-end gap-1">
-              <button type="button" class="btn btn-ghost min-h-11 min-w-11" title="Editar" aria-label="Editar" onclick={() => openEdit(rank)}>
+              <button
+                type="button"
+                class="btn btn-ghost min-h-11 min-w-11"
+                title="Editar"
+                aria-label="Editar"
+                onclick={() => openEdit(rank)}
+              >
                 <Pencil size={18} />
               </button>
-              <button type="button" class="btn btn-ghost text-error min-h-11 min-w-11" title="Excluir" aria-label="Excluir" onclick={() => openDelete(rank)}>
+              <button
+                type="button"
+                class="btn btn-ghost text-error min-h-11 min-w-11"
+                title="Excluir"
+                aria-label="Excluir"
+                onclick={() => openDelete(rank)}
+              >
                 <Trash2 size={18} />
               </button>
             </div>
@@ -83,16 +112,30 @@
 
     {#snippet cards()}
       {#each sorting.sorted as rank}
-        <li class="flex items-center justify-between rounded-xl border border-base-200 bg-base-100 px-4 py-3">
+        <li
+          class="flex items-center justify-between rounded-xl border border-base-200 bg-base-100 px-4 py-3"
+        >
           <div class="flex items-center gap-3">
             <span class="badge badge-neutral p-2">{rank.order}º</span>
             <span class="font-medium">{rank.abbreviation}</span>
           </div>
           <div class="flex gap-1">
-            <button type="button" class="btn btn-ghost min-h-11 min-w-11" title="Editar" aria-label="Editar" onclick={() => openEdit(rank)}>
+            <button
+              type="button"
+              class="btn btn-ghost min-h-11 min-w-11"
+              title="Editar"
+              aria-label="Editar"
+              onclick={() => openEdit(rank)}
+            >
               <Pencil size={18} />
             </button>
-            <button type="button" class="btn btn-ghost text-error min-h-11 min-w-11" title="Excluir" aria-label="Excluir" onclick={() => openDelete(rank)}>
+            <button
+              type="button"
+              class="btn btn-ghost text-error min-h-11 min-w-11"
+              title="Excluir"
+              aria-label="Excluir"
+              onclick={() => openDelete(rank)}
+            >
               <Trash2 size={18} />
             </button>
           </div>
@@ -113,15 +156,35 @@
   {/if}
 
   <label class="flex flex-col gap-1.5">
-    <span class="text-sm font-medium text-base-content">Ordem hierárquica</span>
-    <input type="number" name="order" class="input input-bordered w-full" placeholder="Ex: 1" value={selected?.order ?? ""} min="1" required />
-    <span class="text-xs text-base-content/50">Define a posição na hierarquia militar</span>
+    <span class="text-sm font-medium text-base-content"
+      >Ordem na hierarquia</span
+    >
+    <input
+      type="number"
+      name="order"
+      class="input input-bordered w-full"
+      placeholder="Ex: 1"
+      value={selected?.order ?? ""}
+      min="1"
+      max="20"
+      step="1"
+      required
+    />
   </label>
 
   <label class="flex flex-col gap-1.5">
     <span class="text-sm font-medium text-base-content">Abreviatura</span>
-    <input type="text" name="abbreviation" class="input input-bordered w-full" placeholder="Ex: Cel, Ten, Sd" value={selected?.abbreviation ?? ""} required />
-    <span class="text-xs text-base-content/50">Sigla usada na identificação do militar</span>
+    <input
+      type="text"
+      name="abbreviation"
+      class="input input-bordered w-full"
+      placeholder="Ex: Cel, Ten, Sd"
+      value={selected?.abbreviation ?? ""}
+      maxlength="15"
+      pattern="[a-zA-Z0-9ºª ]+"
+      title="Apenas letras, números, espaços e os caracteres ordinais (ºª)"
+      required
+    />
   </label>
 </FormModal>
 
@@ -137,5 +200,7 @@
   <p class="text-sm text-base-content">
     Tem certeza que deseja excluir <strong>{selected?.abbreviation}</strong>?
   </p>
-  <p class="text-sm text-error font-medium">Esta ação não poderá ser desfeita.</p>
+  <p class="text-sm text-error font-medium">
+    * Esta ação não poderá ser desfeita.
+  </p>
 </ConfirmModal>

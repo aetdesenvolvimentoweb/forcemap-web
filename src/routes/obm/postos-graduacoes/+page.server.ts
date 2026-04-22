@@ -36,7 +36,8 @@ export const actions: Actions = {
     });
 
     if (!response.ok) {
-      return fail(response.status, { message: "Erro ao criar posto/graduação" });
+      const body = await response.json().catch(() => ({}));
+      return fail(response.status, { message: body.error ?? "Erro ao criar posto/graduação." });
     }
   },
 
@@ -59,7 +60,8 @@ export const actions: Actions = {
     });
 
     if (!response.ok) {
-      return fail(response.status, { message: "Erro ao atualizar posto/graduação" });
+      const body = await response.json().catch(() => ({}));
+      return fail(response.status, { message: body.error ?? "Erro ao atualizar posto/graduação." });
     }
   },
 
