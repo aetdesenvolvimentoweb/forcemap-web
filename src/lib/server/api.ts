@@ -6,3 +6,10 @@ export const getApiUrl = (platform: App.Platform | undefined): string => {
 export const isProd = (platform: App.Platform | undefined): boolean => {
   return !!platform?.env?.API_URL;
 };
+
+export const internalHeaders = (
+  platform: App.Platform | undefined,
+): Record<string, string> => {
+  const secret = platform?.env?.API_SECRET;
+  return secret ? { "X-Internal-Secret": secret } : {};
+};

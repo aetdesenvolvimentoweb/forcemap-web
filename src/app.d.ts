@@ -15,6 +15,7 @@ declare global {
 		interface Platform {
 			env: {
 				API_URL?: string;
+				API_SECRET?: string;
 			};
 		}
 	}

@@ -1,5 +1,5 @@
 import { redirect } from "@sveltejs/kit";
-import { getApiUrl } from "$lib/server/api";
+import { getApiUrl, internalHeaders } from "$lib/server/api";
 import type { PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ cookies, platform }) => {
@@ -8,7 +8,7 @@ export const load: PageServerLoad = async ({ cookies, platform }) => {
 
   await fetch(`${apiUrl}/logout`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...internalHeaders(platform) },
     body: JSON.stringify({ refreshToken }),
   }).catch(() => {});
 

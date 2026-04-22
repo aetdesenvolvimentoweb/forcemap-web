@@ -1,5 +1,5 @@
 import { fail } from "@sveltejs/kit";
-import { getApiUrl } from "$lib/server/api";
+import { getApiUrl, internalHeaders } from "$lib/server/api";
 import type { MilitaryRank } from "$lib/types";
 import type { Actions, PageServerLoad } from "./$types";
 
@@ -8,7 +8,7 @@ export const load: PageServerLoad = async ({ cookies, platform }) => {
   const accessToken = cookies.get("access_token");
 
   const response = await fetch(`${apiUrl}/military-rank`, {
-    headers: { Authorization: `Bearer ${accessToken}` },
+    headers: { Authorization: `Bearer ${accessToken}`, ...internalHeaders(platform) },
   });
 
   const { data: ranks }: { data: MilitaryRank[] } = await response.json();
@@ -27,6 +27,7 @@ export const actions: Actions = {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${accessToken}`,
+        ...internalHeaders(platform),
       },
       body: JSON.stringify({
         abbreviation: data.get("abbreviation"),
@@ -49,6 +50,7 @@ export const actions: Actions = {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${accessToken}`,
+        ...internalHeaders(platform),
       },
       body: JSON.stringify({
         abbreviation: data.get("abbreviation"),
@@ -68,7 +70,7 @@ export const actions: Actions = {
 
     const response = await fetch(`${apiUrl}/military-rank/${data.get("id")}`, {
       method: "DELETE",
-      headers: { Authorization: `Bearer ${accessToken}` },
+      headers: { Authorization: `Bearer ${accessToken}`, ...internalHeaders(platform) },
     });
 
     if (!response.ok) {
