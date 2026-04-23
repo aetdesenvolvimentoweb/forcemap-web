@@ -1,3 +1,5 @@
+import type { Military } from "./military";
+
 export enum UserRole {
   ADMIN = "Admin",
   CHEFE = "Chefe",
@@ -7,6 +9,6 @@ export enum UserRole {
 
 export type User = {
   id: string;
-  militaryId: string;
   role: UserRole;
+  military: Military;
 };

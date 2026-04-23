@@ -7,7 +7,7 @@
   const navItems = [
     { label: "Postos/Graduações", href: "/obm/postos-graduacoes" },
     { label: "Efetivo", href: "/obm/efetivo" },
-    { label: "Viaturas", href: "/obm/viaturas" },
+    { label: "Usuários", href: "/obm/usuarios" },
   ];
 </script>
 

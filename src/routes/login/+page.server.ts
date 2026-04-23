@@ -1,5 +1,5 @@
-import { fail, redirect } from "@sveltejs/kit";
 import { getApiUrl, internalHeaders, isProd } from "$lib/server/api";
+import { fail, redirect } from "@sveltejs/kit";
 import type { Actions } from "./$types";
 
 export const actions: Actions = {
@@ -17,7 +17,10 @@ export const actions: Actions = {
 
     const response = await fetch(`${apiUrl}/login`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", ...internalHeaders(platform) },
+      headers: {
+        "Content-Type": "application/json",
+        ...internalHeaders(platform),
+      },
       body: JSON.stringify({ rg, password }),
     });
 
