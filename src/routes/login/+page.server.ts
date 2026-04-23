@@ -11,9 +11,15 @@ export const actions: Actions = {
     const rg = Number(data.get("rg"));
     const password = data.get("password") as string;
 
-    if (!rg || !password) {
-      return fail(400, { message: "RG e senha são obrigatórios" });
-    }
+    if (!rg || isNaN(rg)) return fail(400, { message: "RG é obrigatório." });
+    if (rg < 1 || rg > 10000) return fail(400, { message: "RG deve estar entre 1 e 10000." });
+
+    if (!password || password.trim() === "") return fail(400, { message: "Senha é obrigatória." });
+    if (password.length < 8) return fail(400, { message: "Senha deve ter pelo menos 8 caracteres." });
+    if (!/[A-Z]/.test(password)) return fail(400, { message: "Senha deve conter pelo menos 1 letra maiúscula." });
+    if (!/[a-z]/.test(password)) return fail(400, { message: "Senha deve conter pelo menos 1 letra minúscula." });
+    if (!/[0-9]/.test(password)) return fail(400, { message: "Senha deve conter pelo menos 1 número." });
+    if (!/[!@#$%^&*()_+=[\]{};':"\\|,.<>/?-]/.test(password)) return fail(400, { message: "Senha deve conter pelo menos 1 caractere especial." });
 
     const response = await fetch(`${apiUrl}/login`, {
       method: "POST",

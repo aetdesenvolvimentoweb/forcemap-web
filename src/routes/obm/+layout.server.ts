@@ -1,5 +1,6 @@
 import { getApiUrl, internalHeaders } from "$lib/server/api";
 import type { Military } from "$lib/types";
+import { error } from "@sveltejs/kit";
 import type { LayoutServerLoad } from "./$types";
 
 export const load: LayoutServerLoad = async ({ locals, cookies, platform }) => {
@@ -12,6 +13,12 @@ export const load: LayoutServerLoad = async ({ locals, cookies, platform }) => {
       headers: { Authorization: `Bearer ${accessToken}`, ...internalHeaders(platform) },
     },
   );
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+    const message = body?.error ?? "Erro ao carregar dados do usuário.";
+    throw error(response.status, message);
+  }
 
   const { data: military }: { data: Military } = await response.json();
   return { user: military };
