@@ -8,6 +8,11 @@
     { label: "Postos/Graduações", href: "/obm/postos-graduacoes" },
     { label: "Efetivo", href: "/obm/efetivo" },
     { label: "Usuários", href: "/obm/usuarios" },
+    { label: "Viaturas", href: "/obm/viaturas" },
+    { label: "Oficial", href: "/obm/oficial" },
+    { label: "ACA", href: "/obm/aca" },
+    { label: "Guarnições", href: "/obm/guarnicoes" },
+    { label: "Telefonistas", href: "/obm/telefonistas" },
   ];
 </script>
 

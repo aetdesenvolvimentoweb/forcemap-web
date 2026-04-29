@@ -1,4 +1,4 @@
-import { getApiUrl, internalHeaders } from "$lib/server/api";
+import { ensureAuthenticated, getApiUrl, internalHeaders } from "$lib/server/api";
 import type { Military } from "$lib/types";
 import { error } from "@sveltejs/kit";
 import type { LayoutServerLoad } from "./$types";
@@ -13,6 +13,8 @@ export const load: LayoutServerLoad = async ({ locals, cookies, platform }) => {
       headers: { Authorization: `Bearer ${accessToken}`, ...internalHeaders(platform) },
     },
   );
+
+  ensureAuthenticated(response, cookies);
 
   if (!response.ok) {
     const body = await response.json().catch(() => ({}));

@@ -1,5 +1,5 @@
 import { fail } from "@sveltejs/kit";
-import { getApiUrl, internalHeaders } from "$lib/server/api";
+import { ensureAuthenticated, getApiUrl, internalHeaders } from "$lib/server/api";
 import type { Military, MilitaryRank } from "$lib/types";
 import type { Actions, PageServerLoad } from "./$types";
 
@@ -13,6 +13,9 @@ export const load: PageServerLoad = async ({ cookies, platform }) => {
     fetch(`${apiUrl}/military`, { headers }),
     fetch(`${apiUrl}/military-rank`, { headers }),
   ]);
+
+  ensureAuthenticated(militaryRes, cookies);
+  ensureAuthenticated(ranksRes, cookies);
 
   const { data: military }: { data: Military[] } = await militaryRes.json();
   const { data: ranks }: { data: MilitaryRank[] } = await ranksRes.json();
@@ -40,6 +43,8 @@ export const actions: Actions = {
       }),
     });
 
+    ensureAuthenticated(response, cookies);
+
     if (!response.ok) {
       const body = await response.json().catch(() => ({}));
       return fail(response.status, { message: body.error ?? "Erro ao criar militar." });
@@ -65,6 +70,8 @@ export const actions: Actions = {
       }),
     });
 
+    ensureAuthenticated(response, cookies);
+
     if (!response.ok) {
       const body = await response.json().catch(() => ({}));
       return fail(response.status, { message: body.error ?? "Erro ao atualizar militar." });
@@ -80,6 +87,8 @@ export const actions: Actions = {
       method: "DELETE",
       headers: { Authorization: `Bearer ${accessToken}`, ...internalHeaders(platform) },
     });
+
+    ensureAuthenticated(response, cookies);
 
     if (!response.ok) {
       return fail(response.status, {

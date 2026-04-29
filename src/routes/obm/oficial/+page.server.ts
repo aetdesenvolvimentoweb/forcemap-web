@@ -1,21 +1,29 @@
-import { fail } from "@sveltejs/kit";
 import { ensureAuthenticated, getApiUrl, internalHeaders } from "$lib/server/api";
-import type { MilitaryRank } from "$lib/types";
+import type { Military, Officer } from "$lib/types";
+import { fail } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ cookies, platform }) => {
   const apiUrl = getApiUrl(platform);
   const accessToken = cookies.get("access_token");
 
-  const response = await fetch(`${apiUrl}/military-rank`, {
-    headers: { Authorization: `Bearer ${accessToken}`, ...internalHeaders(platform) },
-  });
+  const headers = {
+    Authorization: `Bearer ${accessToken}`,
+    ...internalHeaders(platform),
+  };
 
-  ensureAuthenticated(response, cookies);
+  const [officersRes, militaryRes] = await Promise.all([
+    fetch(`${apiUrl}/officer`, { headers }),
+    fetch(`${apiUrl}/military`, { headers }),
+  ]);
 
-  const { data: ranks }: { data: MilitaryRank[] } = await response.json();
+  ensureAuthenticated(officersRes, cookies);
+  ensureAuthenticated(militaryRes, cookies);
 
-  return { ranks: ranks ?? [] };
+  const { data: officers }: { data: Officer[] } = await officersRes.json();
+  const { data: military }: { data: Military[] } = await militaryRes.json();
+
+  return { officers: officers ?? [], military: military ?? [] };
 };
 
 export const actions: Actions = {
@@ -24,7 +32,7 @@ export const actions: Actions = {
     const accessToken = cookies.get("access_token");
     const data = await request.formData();
 
-    const response = await fetch(`${apiUrl}/military-rank`, {
+    const response = await fetch(`${apiUrl}/officer`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -32,8 +40,9 @@ export const actions: Actions = {
         ...internalHeaders(platform),
       },
       body: JSON.stringify({
-        abbreviation: data.get("abbreviation"),
-        order: Number(data.get("order")),
+        militaryId: data.get("militaryId"),
+        workPeriod: data.get("workPeriod"),
+        workSchedule: data.get("workSchedule"),
       }),
     });
 
@@ -41,7 +50,9 @@ export const actions: Actions = {
 
     if (!response.ok) {
       const body = await response.json().catch(() => ({}));
-      return fail(response.status, { message: body.error ?? "Erro ao criar posto/graduação." });
+      return fail(response.status, {
+        message: body.error ?? "Erro ao cadastrar oficial.",
+      });
     }
   },
 
@@ -50,7 +61,7 @@ export const actions: Actions = {
     const accessToken = cookies.get("access_token");
     const data = await request.formData();
 
-    const response = await fetch(`${apiUrl}/military-rank/${data.get("id")}`, {
+    const response = await fetch(`${apiUrl}/officer/${data.get("id")}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -58,8 +69,9 @@ export const actions: Actions = {
         ...internalHeaders(platform),
       },
       body: JSON.stringify({
-        abbreviation: data.get("abbreviation"),
-        order: Number(data.get("order")),
+        militaryId: data.get("militaryId"),
+        workPeriod: data.get("workPeriod"),
+        workSchedule: data.get("workSchedule"),
       }),
     });
 
@@ -67,7 +79,9 @@ export const actions: Actions = {
 
     if (!response.ok) {
       const body = await response.json().catch(() => ({}));
-      return fail(response.status, { message: body.error ?? "Erro ao atualizar posto/graduação." });
+      return fail(response.status, {
+        message: body.error ?? "Erro ao atualizar oficial.",
+      });
     }
   },
 
@@ -76,15 +90,18 @@ export const actions: Actions = {
     const accessToken = cookies.get("access_token");
     const data = await request.formData();
 
-    const response = await fetch(`${apiUrl}/military-rank/${data.get("id")}`, {
+    const response = await fetch(`${apiUrl}/officer/${data.get("id")}`, {
       method: "DELETE",
-      headers: { Authorization: `Bearer ${accessToken}`, ...internalHeaders(platform) },
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        ...internalHeaders(platform),
+      },
     });
 
     ensureAuthenticated(response, cookies);
 
     if (!response.ok) {
-      return fail(response.status, { message: "Erro ao excluir posto/graduação" });
+      return fail(response.status, { message: "Erro ao excluir oficial." });
     }
   },
 };

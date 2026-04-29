@@ -1,4 +1,4 @@
-import { getApiUrl, internalHeaders } from "$lib/server/api";
+import { ensureAuthenticated, getApiUrl, internalHeaders } from "$lib/server/api";
 import type { Military, User } from "$lib/types";
 import { fail } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
@@ -16,6 +16,9 @@ export const load: PageServerLoad = async ({ cookies, platform, locals }) => {
     fetch(`${apiUrl}/user`, { headers }),
     fetch(`${apiUrl}/military`, { headers }),
   ]);
+
+  ensureAuthenticated(usersRes, cookies);
+  ensureAuthenticated(militaryRes, cookies);
 
   const { data: users }: { data: User[] } = await usersRes.json();
   const { data: military }: { data: Military[] } = await militaryRes.json();
@@ -43,6 +46,8 @@ export const actions: Actions = {
       }),
     });
 
+    ensureAuthenticated(response, cookies);
+
     if (!response.ok) {
       const body = await response.json().catch(() => ({}));
       return fail(response.status, {
@@ -69,6 +74,8 @@ export const actions: Actions = {
       },
     );
 
+    ensureAuthenticated(response, cookies);
+
     if (!response.ok) {
       const body = await response.json().catch(() => ({}));
       return fail(response.status, {
@@ -89,6 +96,8 @@ export const actions: Actions = {
         ...internalHeaders(platform),
       },
     });
+
+    ensureAuthenticated(response, cookies);
 
     if (!response.ok) {
       return fail(response.status, { message: "Erro ao excluir usuário." });

@@ -1,21 +1,21 @@
 import { fail } from "@sveltejs/kit";
 import { ensureAuthenticated, getApiUrl, internalHeaders } from "$lib/server/api";
-import type { MilitaryRank } from "$lib/types";
+import type { Vehicle } from "$lib/types";
 import type { Actions, PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ cookies, platform }) => {
   const apiUrl = getApiUrl(platform);
   const accessToken = cookies.get("access_token");
 
-  const response = await fetch(`${apiUrl}/military-rank`, {
+  const response = await fetch(`${apiUrl}/vehicle`, {
     headers: { Authorization: `Bearer ${accessToken}`, ...internalHeaders(platform) },
   });
 
   ensureAuthenticated(response, cookies);
 
-  const { data: ranks }: { data: MilitaryRank[] } = await response.json();
+  const { data: vehicles }: { data: Vehicle[] } = await response.json();
 
-  return { ranks: ranks ?? [] };
+  return { vehicles: vehicles ?? [] };
 };
 
 export const actions: Actions = {
@@ -24,7 +24,8 @@ export const actions: Actions = {
     const accessToken = cookies.get("access_token");
     const data = await request.formData();
 
-    const response = await fetch(`${apiUrl}/military-rank`, {
+    const complement = data.get("complement");
+    const response = await fetch(`${apiUrl}/vehicle`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -32,8 +33,9 @@ export const actions: Actions = {
         ...internalHeaders(platform),
       },
       body: JSON.stringify({
-        abbreviation: data.get("abbreviation"),
-        order: Number(data.get("order")),
+        name: data.get("name"),
+        situation: data.get("situation"),
+        complement: complement ? complement : undefined,
       }),
     });
 
@@ -41,7 +43,7 @@ export const actions: Actions = {
 
     if (!response.ok) {
       const body = await response.json().catch(() => ({}));
-      return fail(response.status, { message: body.error ?? "Erro ao criar posto/graduação." });
+      return fail(response.status, { message: body.error ?? "Erro ao criar viatura." });
     }
   },
 
@@ -50,7 +52,8 @@ export const actions: Actions = {
     const accessToken = cookies.get("access_token");
     const data = await request.formData();
 
-    const response = await fetch(`${apiUrl}/military-rank/${data.get("id")}`, {
+    const complement = data.get("complement");
+    const response = await fetch(`${apiUrl}/vehicle/${data.get("id")}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -58,8 +61,9 @@ export const actions: Actions = {
         ...internalHeaders(platform),
       },
       body: JSON.stringify({
-        abbreviation: data.get("abbreviation"),
-        order: Number(data.get("order")),
+        name: data.get("name"),
+        situation: data.get("situation"),
+        complement: complement ? complement : undefined,
       }),
     });
 
@@ -67,7 +71,7 @@ export const actions: Actions = {
 
     if (!response.ok) {
       const body = await response.json().catch(() => ({}));
-      return fail(response.status, { message: body.error ?? "Erro ao atualizar posto/graduação." });
+      return fail(response.status, { message: body.error ?? "Erro ao atualizar viatura." });
     }
   },
 
@@ -76,7 +80,7 @@ export const actions: Actions = {
     const accessToken = cookies.get("access_token");
     const data = await request.formData();
 
-    const response = await fetch(`${apiUrl}/military-rank/${data.get("id")}`, {
+    const response = await fetch(`${apiUrl}/vehicle/${data.get("id")}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${accessToken}`, ...internalHeaders(platform) },
     });
@@ -84,7 +88,7 @@ export const actions: Actions = {
     ensureAuthenticated(response, cookies);
 
     if (!response.ok) {
-      return fail(response.status, { message: "Erro ao excluir posto/graduação" });
+      return fail(response.status, { message: "Erro ao excluir viatura" });
     }
   },
 };
