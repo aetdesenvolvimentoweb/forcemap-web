@@ -7,12 +7,14 @@
     title,
     action,
     submitLabel = "Salvar",
+    onValidate,
     children,
   }: {
     dialog?: HTMLDialogElement;
     title: string;
     action: string;
     submitLabel?: string;
+    onValidate?: () => string | null;
     children: Snippet;
   } = $props();
 
@@ -29,16 +31,26 @@
     <form
       method="POST"
       {action}
-      use:enhance={() => async ({ result, update }) => {
-        if (result.type === "failure") {
-          errorMessage = (result.data as { message?: string })?.message ?? "Erro ao salvar.";
-        } else if (result.type === "error") {
-          errorMessage = "Erro de comunicação com o servidor.";
-        } else {
-          errorMessage = null;
-          await update();
-          dialog?.close();
+      use:enhance={({ cancel }) => {
+        if (onValidate) {
+          const message = onValidate();
+          if (message) {
+            errorMessage = message;
+            cancel();
+            return;
+          }
         }
+        return async ({ result, update }) => {
+          if (result.type === "failure") {
+            errorMessage = (result.data as { message?: string })?.message ?? "Erro ao salvar.";
+          } else if (result.type === "error") {
+            errorMessage = "Erro de comunicação com o servidor.";
+          } else {
+            errorMessage = null;
+            await update();
+            dialog?.close();
+          }
+        };
       }}
     >
       <div class="flex flex-col gap-5 px-6 py-6">
