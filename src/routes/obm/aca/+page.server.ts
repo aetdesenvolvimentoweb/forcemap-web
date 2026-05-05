@@ -1,29 +1,13 @@
-import { ensureAuthenticated, getApiUrl, internalHeaders } from "$lib/server/api";
-import type { ACA, Military } from "$lib/types";
-import { fail } from "@sveltejs/kit";
+import {
+  ensureAuthenticated,
+  getApiUrl,
+  internalHeaders,
+} from "$lib/server/api";
+import { fail, redirect } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
 
-export const load: PageServerLoad = async ({ cookies, platform }) => {
-  const apiUrl = getApiUrl(platform);
-  const accessToken = cookies.get("access_token");
-
-  const headers = {
-    Authorization: `Bearer ${accessToken}`,
-    ...internalHeaders(platform),
-  };
-
-  const [acasRes, militaryRes] = await Promise.all([
-    fetch(`${apiUrl}/aca`, { headers }),
-    fetch(`${apiUrl}/military`, { headers }),
-  ]);
-
-  ensureAuthenticated(acasRes, cookies);
-  ensureAuthenticated(militaryRes, cookies);
-
-  const { data: acas }: { data: ACA[] } = await acasRes.json();
-  const { data: military }: { data: Military[] } = await militaryRes.json();
-
-  return { acas: acas ?? [], military: military ?? [] };
+export const load: PageServerLoad = () => {
+  redirect(303, "/obm");
 };
 
 export const actions: Actions = {

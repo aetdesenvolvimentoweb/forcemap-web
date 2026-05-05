@@ -1,36 +1,13 @@
-import { ensureAuthenticated, getApiUrl, internalHeaders } from "$lib/server/api";
-import type { Garrison, Military, Vehicle } from "$lib/types";
-import { fail } from "@sveltejs/kit";
+import {
+  ensureAuthenticated,
+  getApiUrl,
+  internalHeaders,
+} from "$lib/server/api";
+import { fail, redirect } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
 
-export const load: PageServerLoad = async ({ cookies, platform }) => {
-  const apiUrl = getApiUrl(platform);
-  const accessToken = cookies.get("access_token");
-
-  const headers = {
-    Authorization: `Bearer ${accessToken}`,
-    ...internalHeaders(platform),
-  };
-
-  const [garrisonsRes, militaryRes, vehiclesRes] = await Promise.all([
-    fetch(`${apiUrl}/garrison`, { headers }),
-    fetch(`${apiUrl}/military`, { headers }),
-    fetch(`${apiUrl}/vehicle`, { headers }),
-  ]);
-
-  ensureAuthenticated(garrisonsRes, cookies);
-  ensureAuthenticated(militaryRes, cookies);
-  ensureAuthenticated(vehiclesRes, cookies);
-
-  const { data: garrisons }: { data: Garrison[] } = await garrisonsRes.json();
-  const { data: military }: { data: Military[] } = await militaryRes.json();
-  const { data: vehicles }: { data: Vehicle[] } = await vehiclesRes.json();
-
-  return {
-    garrisons: garrisons ?? [],
-    military: military ?? [],
-    vehicles: vehicles ?? [],
-  };
+export const load: PageServerLoad = () => {
+  redirect(303, "/obm");
 };
 
 const parsePayload = (data: FormData) => {
