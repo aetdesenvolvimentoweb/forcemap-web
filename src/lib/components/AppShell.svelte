@@ -1,16 +1,20 @@
 <script lang="ts">
   import type { Military } from "$lib/types";
 
-  let { children, user }: { children?: () => any; user: Military } = $props();
+  let { children, user, role }: { children?: () => any; user: Military; role?: string } = $props();
   let menuOpen = $state(false);
 
-  const navItems = [
+  const allNavItems = [
     { label: "Resumo", href: "/obm" },
-    { label: "Postos/Graduações", href: "/obm/postos-graduacoes" },
+    { label: "Postos/Graduações", href: "/obm/postos-graduacoes", roles: ["Admin"] },
     { label: "Efetivo", href: "/obm/efetivo" },
-    { label: "Usuários", href: "/obm/usuarios" },
-    { label: "Viaturas", href: "/obm/viaturas" },
+    { label: "Usuários", href: "/obm/usuarios", roles: ["Admin", "Chefe"] },
+    { label: "Viaturas", href: "/obm/viaturas", roles: ["Admin", "Chefe", "ACA"] },
   ];
+
+  const navItems = $derived(
+    allNavItems.filter((item) => !item.roles || (role && item.roles.includes(role))),
+  );
 </script>
 
 <div class="drawer">

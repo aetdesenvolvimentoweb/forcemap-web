@@ -23,5 +23,5 @@ export const load: LayoutServerLoad = async ({ locals, cookies, platform }) => {
   }
 
   const { data: military }: { data: Military } = await response.json();
-  return { user: military };
+  return { user: military, role: locals.user?.role };
 };

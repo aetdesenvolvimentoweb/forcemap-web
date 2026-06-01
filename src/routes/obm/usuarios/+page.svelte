@@ -6,7 +6,7 @@
   import SortHeader from "$lib/components/SortHeader.svelte";
   import { UserRole, type User } from "$lib/types";
   import { createSorting } from "$lib/utils/sorting.svelte";
-  import { Shield, Trash2 } from "lucide-svelte";
+  import { Shield, Trash2, Eye, EyeOff } from "lucide-svelte";
   import { tick } from "svelte";
   import type { PageProps } from "./$types";
 
@@ -21,6 +21,8 @@
   let search = $state("");
   let password = $state("");
   let confirmPasswordEl = $state<HTMLInputElement>();
+  let showPassword = $state(false);
+  let showConfirmPassword = $state(false);
 
   function validateConfirm() {
     if (!confirmPasswordEl) return;
@@ -59,6 +61,8 @@
     selectedRole = "";
     selectedMilitaryId = "";
     password = "";
+    showPassword = false;
+    showConfirmPassword = false;
     mode = "create";
     formDialog?.showModal();
   }
@@ -244,29 +248,57 @@
   {#if mode === "create"}
     <label class="flex flex-col gap-1.5">
       <span class="text-sm font-medium text-base-content">Senha</span>
-      <input
-        type="password"
-        name="password"
-        class="input input-bordered w-full"
-        placeholder="Senha de acesso"
-        autocomplete="new-password"
-        bind:value={password}
-        oninput={validateConfirm}
-        required
-      />
+      <div class="relative w-full">
+        <input
+          type={showPassword ? "text" : "password"}
+          name="password"
+          class="input input-bordered w-full pr-10"
+          placeholder="Senha de acesso"
+          autocomplete="new-password"
+          bind:value={password}
+          oninput={validateConfirm}
+          required
+        />
+        <button
+          type="button"
+          class="absolute inset-y-0 right-0 flex items-center pr-3 text-base-content/60 hover:text-base-content"
+          onclick={() => (showPassword = !showPassword)}
+          aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+        >
+          {#if showPassword}
+            <EyeOff size={18} />
+          {:else}
+            <Eye size={18} />
+          {/if}
+        </button>
+      </div>
     </label>
 
     <label class="flex flex-col gap-1.5">
       <span class="text-sm font-medium text-base-content">Confirmar senha</span>
-      <input
-        type="password"
-        class="input input-bordered w-full"
-        placeholder="Repita a senha"
-        autocomplete="new-password"
-        bind:this={confirmPasswordEl}
-        oninput={validateConfirm}
-        required
-      />
+      <div class="relative w-full">
+        <input
+          type={showConfirmPassword ? "text" : "password"}
+          class="input input-bordered w-full pr-10"
+          placeholder="Repita a senha"
+          autocomplete="new-password"
+          bind:this={confirmPasswordEl}
+          oninput={validateConfirm}
+          required
+        />
+        <button
+          type="button"
+          class="absolute inset-y-0 right-0 flex items-center pr-3 text-base-content/60 hover:text-base-content"
+          onclick={() => (showConfirmPassword = !showConfirmPassword)}
+          aria-label={showConfirmPassword ? "Ocultar senha" : "Mostrar senha"}
+        >
+          {#if showConfirmPassword}
+            <EyeOff size={18} />
+          {:else}
+            <Eye size={18} />
+          {/if}
+        </button>
+      </div>
     </label>
   {/if}
 </FormModal>

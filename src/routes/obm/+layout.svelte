@@ -5,7 +5,7 @@
   let { children, data }: LayoutProps = $props();
 </script>
 
-<AppShell user={data.user}>
+<AppShell user={data.user} role={data.role}>
   <main class="flex-1 p-4 md:p-6 lg:p-8">
     {@render children()}
   </main>

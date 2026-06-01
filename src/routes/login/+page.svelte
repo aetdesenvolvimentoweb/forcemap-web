@@ -1,7 +1,9 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
+  import { Eye, EyeOff } from "lucide-svelte";
 
   let errorMessage = $state<string | null>(null);
+  let showPassword = $state(false);
 </script>
 
 <div class="flex min-h-screen items-center justify-center bg-base-200 p-4">
@@ -43,15 +45,29 @@
 
     <fieldset class="fieldset">
       <legend class="fieldset-legend">Senha</legend>
-      <input
-        class="input input-bordered w-full"
-        id="password"
-        name="password"
-        type="password"
-        placeholder="••••••••"
-        minlength="8"
-        required
-      />
+      <div class="relative w-full">
+        <input
+          class="input input-bordered w-full pr-10"
+          id="password"
+          name="password"
+          type={showPassword ? "text" : "password"}
+          placeholder="••••••••"
+          minlength="8"
+          required
+        />
+        <button
+          type="button"
+          class="absolute inset-y-0 right-0 flex items-center pr-3 text-base-content/60 hover:text-base-content"
+          onclick={() => (showPassword = !showPassword)}
+          aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+        >
+          {#if showPassword}
+            <EyeOff size={18} />
+          {:else}
+            <Eye size={18} />
+          {/if}
+        </button>
+      </div>
     </fieldset>
 
     <button class="btn btn-primary w-full" type="submit">Entrar</button>
