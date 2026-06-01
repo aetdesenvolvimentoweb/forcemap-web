@@ -1,27 +1,42 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
+  import { page } from "$app/stores";
   import { Eye, EyeOff } from "lucide-svelte";
 
   let errorMessage = $state<string | null>(null);
   let showPassword = $state(false);
+
+  let successMessage = $derived(
+    $page.url.searchParams.get("passwordChanged") === "true"
+      ? "Senha alterada com sucesso! Faça login com a nova senha."
+      : null,
+  );
 </script>
 
 <div class="flex min-h-screen items-center justify-center bg-base-200 p-4">
   <form
     method="POST"
-    use:enhance={() => async ({ result, update }) => {
-      if (result.type === "failure") {
-        errorMessage = (result.data as { message?: string })?.message ?? "Erro ao entrar.";
-      } else if (result.type === "error") {
-        errorMessage = "Erro de comunicação com o servidor.";
-      } else {
-        errorMessage = null;
-        await update();
-      }
-    }}
+    use:enhance={() =>
+      async ({ result, update }) => {
+        if (result.type === "failure") {
+          errorMessage =
+            (result.data as { message?: string })?.message ?? "Erro ao entrar.";
+        } else if (result.type === "error") {
+          errorMessage = "Erro de comunicação com o servidor.";
+        } else {
+          errorMessage = null;
+          await update();
+        }
+      }}
     class="w-full max-w-sm space-y-4 rounded-xl bg-base-100 p-6 shadow-lg md:max-w-md md:p-8"
   >
     <h1 class="text-lg font-semibold md:text-xl">Entre com suas credenciais</h1>
+
+    {#if successMessage}
+      <div role="alert" class="alert alert-success text-sm">
+        <span>{successMessage}</span>
+      </div>
+    {/if}
 
     {#if errorMessage}
       <div role="alert" class="alert alert-error text-sm">
