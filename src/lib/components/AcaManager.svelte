@@ -7,6 +7,7 @@
   import {
     WorkPeriod,
     WorkSchedule,
+    formatWorkPeriod,
     type ACA,
     type Military,
   } from "$lib/types";
@@ -143,7 +144,7 @@
           <td>{aca.military.militaryRank?.abbreviation}</td>
           <td>{aca.military.rg}</td>
           <td>{aca.military.name}</td>
-          <td>{aca.workPeriod}</td>
+          <td>{formatWorkPeriod(aca.workPeriod)}</td>
           <td>{aca.workSchedule}</td>
           <td>
             <div class="flex justify-end gap-1">
@@ -183,7 +184,7 @@
             <div class="flex flex-col">
               <span class="font-medium text-sm">{aca.military.name}</span>
               <span class="text-xs text-base-content/60"
-                >RG {aca.military.rg} · {aca.workPeriod} · {aca.workSchedule}</span
+                >RG {aca.military.rg} · {formatWorkPeriod(aca.workPeriod)} · {aca.workSchedule}</span
               >
             </div>
           </div>
@@ -268,7 +269,7 @@
     >
       <option value="" disabled>Selecione...</option>
       {#each Object.values(WorkPeriod) as period}
-        <option value={period}>{period}</option>
+        <option value={period}>{formatWorkPeriod(period)}</option>
       {/each}
     </select>
   </label>

@@ -8,6 +8,7 @@
     VehicleSituation,
     WorkPeriod,
     WorkSchedule,
+    formatWorkPeriod,
     type Garrison,
     type Military,
     type Vehicle,
@@ -238,7 +239,7 @@
                   >
                   <span>{m.military.name}</span>
                   <span class="text-xs text-base-content/60">
-                    RG {m.military.rg} · {m.workPeriod} · {m.workSchedule}
+                    RG {m.military.rg} · {formatWorkPeriod(m.workPeriod)} · {m.workSchedule}
                   </span>
                 </li>
               {/each}
@@ -313,7 +314,7 @@
                 >
                 <span>{m.military.name}</span>
                 <span class="text-base-content/60"
-                  >· {m.workPeriod} · {m.workSchedule}</span
+                  >· {formatWorkPeriod(m.workPeriod)} · {m.workSchedule}</span
                 >
               </li>
             {/each}
@@ -411,7 +412,7 @@
               >
                 <option value="" disabled>Selecione...</option>
                 {#each Object.values(WorkPeriod) as period}
-                  <option value={period}>{period}</option>
+                  <option value={period}>{formatWorkPeriod(period)}</option>
                 {/each}
               </select>
             </label>

@@ -7,4 +7,4 @@ export { UserRole } from "./user";
 export type { User } from "./user";
 export { VehicleSituation } from "./vehicle";
 export type { Vehicle } from "./vehicle";
-export { WorkPeriod, WorkSchedule } from "./work";
+export { WorkPeriod, WorkSchedule, formatWorkPeriod } from "./work";
