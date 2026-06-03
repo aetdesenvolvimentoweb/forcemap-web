@@ -2,6 +2,7 @@ import {
   ensureAuthenticated,
   getApiUrl,
   internalHeaders,
+  readList,
 } from "$lib/server/api";
 import type {
   ACA,
@@ -51,15 +52,23 @@ export const load: PageServerLoad = async ({ cookies, platform }) => {
   ensureAuthenticated(militaryRes, cookies);
   ensureAuthenticated(serviceSwapsRes, cookies);
 
-  const { data: vehicles }: { data: Vehicle[] } = await vehiclesRes.json();
-  const { data: officers }: { data: Officer[] } = await officersRes.json();
-  const { data: acas }: { data: ACA[] } = await acasRes.json();
-  const { data: telephonists }: { data: Telephonist[] } =
-    await telephonistsRes.json();
-  const { data: garrisons }: { data: Garrison[] } = await garrisonsRes.json();
-  const { data: military }: { data: Military[] } = await militaryRes.json();
-  const { data: serviceSwaps }: { data: ServiceSwap[] } =
-    await serviceSwapsRes.json();
+  const [
+    vehicles,
+    officers,
+    acas,
+    telephonists,
+    garrisons,
+    military,
+    serviceSwaps,
+  ] = await Promise.all([
+    readList<Vehicle>(vehiclesRes),
+    readList<Officer>(officersRes),
+    readList<ACA>(acasRes),
+    readList<Telephonist>(telephonistsRes),
+    readList<Garrison>(garrisonsRes),
+    readList<Military>(militaryRes),
+    readList<ServiceSwap>(serviceSwapsRes),
+  ]);
 
   const serviceDateRes = await fetch(`${apiUrl}/public/service-date`, {
     headers,
@@ -71,13 +80,13 @@ export const load: PageServerLoad = async ({ cookies, platform }) => {
     serviceDateJson?.data?.date ?? currentServiceDate();
 
   return {
-    vehicles: vehicles ?? [],
-    officers: officers ?? [],
-    acas: acas ?? [],
-    telephonists: telephonists ?? [],
-    garrisons: garrisons ?? [],
-    military: military ?? [],
-    serviceSwaps: serviceSwaps ?? [],
+    vehicles,
+    officers,
+    acas,
+    telephonists,
+    garrisons,
+    military,
+    serviceSwaps,
     serviceDate,
   };
 };
@@ -107,25 +116,14 @@ export const actions: Actions = {
     ensureAuthenticated(garrisonsRes, cookies);
     ensureAuthenticated(serviceSwapsRes, cookies);
 
-    const [
-      officersJson,
-      acasJson,
-      telephonistsJson,
-      garrisonsJson,
-      serviceSwapsJson,
-    ] = await Promise.all([
-      officersRes.json(),
-      acasRes.json(),
-      telephonistsRes.json(),
-      garrisonsRes.json(),
-      serviceSwapsRes.json(),
-    ]);
-
-    const officers: Officer[] = officersJson.data ?? [];
-    const acas: ACA[] = acasJson.data ?? [];
-    const telephonists: Telephonist[] = telephonistsJson.data ?? [];
-    const garrisons: Garrison[] = garrisonsJson.data ?? [];
-    const serviceSwaps: ServiceSwap[] = serviceSwapsJson.data ?? [];
+    const [officers, acas, telephonists, garrisons, serviceSwaps] =
+      await Promise.all([
+        readList<Officer>(officersRes),
+        readList<ACA>(acasRes),
+        readList<Telephonist>(telephonistsRes),
+        readList<Garrison>(garrisonsRes),
+        readList<ServiceSwap>(serviceSwapsRes),
+      ]);
 
     const deletes: Promise<Response>[] = [
       ...officers.map((o) =>
@@ -148,6 +146,15 @@ export const actions: Actions = {
     const results = await Promise.all(deletes);
     for (const r of results) ensureAuthenticated(r, cookies);
 
+    // Só marca o dia como reiniciado se TODA a limpeza ocorreu; caso contrário
+    // o resumo ficaria vinculado ao novo dia com dados antigos remanescentes.
+    const failed = results.filter((r) => !r.ok).length;
+    if (failed > 0) {
+      return fail(500, {
+        message: "Falha ao limpar os registros do resumo anterior.",
+      });
+    }
+
     // Vincula o resumo ao dia: grava a data do serviço como "hoje".
     const serviceDateRes = await fetch(`${apiUrl}/service-date`, {
       method: "PUT",
@@ -155,10 +162,9 @@ export const actions: Actions = {
     });
     ensureAuthenticated(serviceDateRes, cookies);
 
-    const failed = results.filter((r) => !r.ok).length;
-    if (failed > 0 || !serviceDateRes.ok) {
+    if (!serviceDateRes.ok) {
       return fail(500, {
-        message: `Falha ao iniciar novo resumo.`,
+        message: "Falha ao iniciar novo resumo.",
       });
     }
   },

@@ -2,6 +2,7 @@ import {
   ensureAuthenticated,
   getApiUrl,
   internalHeaders,
+  pathSegment,
 } from "$lib/server/api";
 import { fail, redirect } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
@@ -45,7 +46,7 @@ export const actions: Actions = {
     const accessToken = cookies.get("access_token");
     const data = await request.formData();
 
-    const response = await fetch(`${apiUrl}/telephonist/${data.get("id")}`, {
+    const response = await fetch(`${apiUrl}/telephonist/${pathSegment(data.get("id"))}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -74,7 +75,7 @@ export const actions: Actions = {
     const accessToken = cookies.get("access_token");
     const data = await request.formData();
 
-    const response = await fetch(`${apiUrl}/telephonist/${data.get("id")}`, {
+    const response = await fetch(`${apiUrl}/telephonist/${pathSegment(data.get("id"))}`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${accessToken}`,

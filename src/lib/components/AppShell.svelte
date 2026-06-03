@@ -112,7 +112,13 @@
                 >Alterar senha</a
               >
             </li>
-            <li><a href="/logout" class="text-error text-sm">Sair</a></li>
+            <li>
+              <form method="POST" action="/logout">
+                <button type="submit" class="text-error text-sm w-full text-left"
+                  >Sair</button
+                >
+              </form>
+            </li>
           </ul>
         </div>
       </div>
@@ -153,7 +159,13 @@
           >
         </li>
         <li>
-          <a href="/logout" class="text-error">Sair</a>
+          <form method="POST" action="/logout">
+            <button
+              type="submit"
+              class="text-error w-full text-left"
+              onclick={() => (menuOpen = false)}>Sair</button
+            >
+          </form>
         </li>
       </ul>
     </aside>

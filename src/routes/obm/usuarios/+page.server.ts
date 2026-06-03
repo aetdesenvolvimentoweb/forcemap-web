@@ -1,4 +1,4 @@
-import { ensureAuthenticated, getApiUrl, internalHeaders } from "$lib/server/api";
+import { ensureAuthenticated, getApiUrl, internalHeaders, pathSegment, readList } from "$lib/server/api";
 import type { Military, User } from "$lib/types";
 import { fail } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
@@ -20,10 +20,12 @@ export const load: PageServerLoad = async ({ cookies, platform, locals }) => {
   ensureAuthenticated(usersRes, cookies);
   ensureAuthenticated(militaryRes, cookies);
 
-  const { data: users }: { data: User[] } = await usersRes.json();
-  const { data: military }: { data: Military[] } = await militaryRes.json();
+  const [users, military] = await Promise.all([
+    readList<User>(usersRes),
+    readList<Military>(militaryRes),
+  ]);
 
-  return { users: users ?? [], military: military ?? [], currentUserRole: locals.user?.role };
+  return { users, military, currentUserRole: locals.user?.role };
 };
 
 export const actions: Actions = {
@@ -62,7 +64,7 @@ export const actions: Actions = {
     const data = await request.formData();
 
     const response = await fetch(
-      `${apiUrl}/user/update-role/${data.get("id")}`,
+      `${apiUrl}/user/update-role/${pathSegment(data.get("id"))}`,
       {
         method: "PATCH",
         headers: {
@@ -89,7 +91,7 @@ export const actions: Actions = {
     const accessToken = cookies.get("access_token");
     const data = await request.formData();
 
-    const response = await fetch(`${apiUrl}/user/${data.get("id")}`, {
+    const response = await fetch(`${apiUrl}/user/${pathSegment(data.get("id"))}`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${accessToken}`,

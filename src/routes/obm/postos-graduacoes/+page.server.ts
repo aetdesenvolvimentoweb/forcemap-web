@@ -1,5 +1,5 @@
 import { fail } from "@sveltejs/kit";
-import { ensureAuthenticated, getApiUrl, internalHeaders } from "$lib/server/api";
+import { ensureAuthenticated, getApiUrl, internalHeaders, pathSegment, readList } from "$lib/server/api";
 import type { MilitaryRank } from "$lib/types";
 import type { Actions, PageServerLoad } from "./$types";
 
@@ -13,9 +13,9 @@ export const load: PageServerLoad = async ({ cookies, platform }) => {
 
   ensureAuthenticated(response, cookies);
 
-  const { data: ranks }: { data: MilitaryRank[] } = await response.json();
+  const ranks = await readList<MilitaryRank>(response);
 
-  return { ranks: ranks ?? [] };
+  return { ranks };
 };
 
 export const actions: Actions = {
@@ -50,7 +50,7 @@ export const actions: Actions = {
     const accessToken = cookies.get("access_token");
     const data = await request.formData();
 
-    const response = await fetch(`${apiUrl}/military-rank/${data.get("id")}`, {
+    const response = await fetch(`${apiUrl}/military-rank/${pathSegment(data.get("id"))}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -76,7 +76,7 @@ export const actions: Actions = {
     const accessToken = cookies.get("access_token");
     const data = await request.formData();
 
-    const response = await fetch(`${apiUrl}/military-rank/${data.get("id")}`, {
+    const response = await fetch(`${apiUrl}/military-rank/${pathSegment(data.get("id"))}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${accessToken}`, ...internalHeaders(platform) },
     });

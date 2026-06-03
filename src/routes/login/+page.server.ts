@@ -1,4 +1,4 @@
-import { getApiUrl, internalHeaders, isProd } from "$lib/server/api";
+import { getApiUrl, internalHeaders, isProd, jwtSecondsUntilExpiry } from "$lib/server/api";
 import { fail, redirect } from "@sveltejs/kit";
 import type { Actions } from "./$types";
 
@@ -14,12 +14,10 @@ export const actions: Actions = {
     if (!rg || isNaN(rg)) return fail(400, { message: "RG é obrigatório." });
     if (rg < 1 || rg > 10000) return fail(400, { message: "RG deve estar entre 1 e 10000." });
 
+    // No login só verificamos presença; a política de complexidade pertence ao
+    // cadastro/troca de senha. Validá-la aqui vaza a regra e bloqueia senhas
+    // legadas válidas. Credenciais incorretas retornam erro genérico da API.
     if (!password || password.trim() === "") return fail(400, { message: "Senha é obrigatória." });
-    if (password.length < 8) return fail(400, { message: "Senha deve ter pelo menos 8 caracteres." });
-    if (!/[A-Z]/.test(password)) return fail(400, { message: "Senha deve conter pelo menos 1 letra maiúscula." });
-    if (!/[a-z]/.test(password)) return fail(400, { message: "Senha deve conter pelo menos 1 letra minúscula." });
-    if (!/[0-9]/.test(password)) return fail(400, { message: "Senha deve conter pelo menos 1 número." });
-    if (!/[!@#$%^&*()_+=[\]{};':"\\|,.<>/?-]/.test(password)) return fail(400, { message: "Senha deve conter pelo menos 1 caractere especial." });
 
     const response = await fetch(`${apiUrl}/login`, {
       method: "POST",
@@ -49,7 +47,9 @@ export const actions: Actions = {
       secure: secure,
       sameSite: "lax",
       path: "/",
-      maxAge: 60 * 60 * 24 * 7,
+      // Mantém o cookie sincronizado com a expiração real do refresh token,
+      // independente da configuração de tempo de vida na API (fallback: 7 dias).
+      maxAge: jwtSecondsUntilExpiry(body.refreshToken, 60 * 60 * 24 * 7),
     });
 
     redirect(303, "/obm");

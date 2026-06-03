@@ -1,4 +1,4 @@
-import { ensureAuthenticated, getApiUrl, internalHeaders } from "$lib/server/api";
+import { ensureAuthenticated, getApiUrl, internalHeaders, pathSegment } from "$lib/server/api";
 import { fail, redirect } from "@sveltejs/kit";
 import type { Actions } from "./$types";
 
@@ -34,7 +34,7 @@ export const actions: Actions = {
 
     const accessToken = cookies.get("access_token");
 
-    const response = await fetch(`${apiUrl}/user/update-password/${locals.user.id}`, {
+    const response = await fetch(`${apiUrl}/user/update-password/${pathSegment(locals.user.id)}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",

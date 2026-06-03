@@ -1,5 +1,5 @@
 import { fail } from "@sveltejs/kit";
-import { ensureAuthenticated, getApiUrl, internalHeaders } from "$lib/server/api";
+import { ensureAuthenticated, getApiUrl, internalHeaders, pathSegment, readList } from "$lib/server/api";
 import type { Vehicle } from "$lib/types";
 import type { Actions, PageServerLoad } from "./$types";
 
@@ -13,9 +13,9 @@ export const load: PageServerLoad = async ({ cookies, platform }) => {
 
   ensureAuthenticated(response, cookies);
 
-  const { data: vehicles }: { data: Vehicle[] } = await response.json();
+  const vehicles = await readList<Vehicle>(response);
 
-  return { vehicles: vehicles ?? [] };
+  return { vehicles };
 };
 
 export const actions: Actions = {
@@ -53,7 +53,7 @@ export const actions: Actions = {
     const data = await request.formData();
 
     const complement = data.get("complement");
-    const response = await fetch(`${apiUrl}/vehicle/${data.get("id")}`, {
+    const response = await fetch(`${apiUrl}/vehicle/${pathSegment(data.get("id"))}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -80,7 +80,7 @@ export const actions: Actions = {
     const accessToken = cookies.get("access_token");
     const data = await request.formData();
 
-    const response = await fetch(`${apiUrl}/vehicle/${data.get("id")}`, {
+    const response = await fetch(`${apiUrl}/vehicle/${pathSegment(data.get("id"))}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${accessToken}`, ...internalHeaders(platform) },
     });
