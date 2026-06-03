@@ -8,9 +8,11 @@ import type {
   Garrison,
   Military,
   Officer,
+  ServiceSwap,
   Telephonist,
   Vehicle,
 } from "$lib/types";
+import { currentServiceDate } from "$lib/utils/datetime";
 import { fail } from "@sveltejs/kit";
 import type { Actions, PageServerLoad } from "./$types";
 
@@ -30,6 +32,7 @@ export const load: PageServerLoad = async ({ cookies, platform }) => {
     telephonistsRes,
     garrisonsRes,
     militaryRes,
+    serviceSwapsRes,
   ] = await Promise.all([
     fetch(`${apiUrl}/vehicle`, { headers }),
     fetch(`${apiUrl}/officer`, { headers }),
@@ -37,6 +40,7 @@ export const load: PageServerLoad = async ({ cookies, platform }) => {
     fetch(`${apiUrl}/telephonist`, { headers }),
     fetch(`${apiUrl}/garrison`, { headers }),
     fetch(`${apiUrl}/military`, { headers }),
+    fetch(`${apiUrl}/service-swap`, { headers }),
   ]);
 
   ensureAuthenticated(vehiclesRes, cookies);
@@ -45,6 +49,7 @@ export const load: PageServerLoad = async ({ cookies, platform }) => {
   ensureAuthenticated(telephonistsRes, cookies);
   ensureAuthenticated(garrisonsRes, cookies);
   ensureAuthenticated(militaryRes, cookies);
+  ensureAuthenticated(serviceSwapsRes, cookies);
 
   const { data: vehicles }: { data: Vehicle[] } = await vehiclesRes.json();
   const { data: officers }: { data: Officer[] } = await officersRes.json();
@@ -53,6 +58,17 @@ export const load: PageServerLoad = async ({ cookies, platform }) => {
     await telephonistsRes.json();
   const { data: garrisons }: { data: Garrison[] } = await garrisonsRes.json();
   const { data: military }: { data: Military[] } = await militaryRes.json();
+  const { data: serviceSwaps }: { data: ServiceSwap[] } =
+    await serviceSwapsRes.json();
+
+  const serviceDateRes = await fetch(`${apiUrl}/public/service-date`, {
+    headers,
+  });
+  const serviceDateJson = await serviceDateRes
+    .json()
+    .catch(() => ({ data: { date: null } }));
+  const serviceDate: string =
+    serviceDateJson?.data?.date ?? currentServiceDate();
 
   return {
     vehicles: vehicles ?? [],
@@ -61,6 +77,8 @@ export const load: PageServerLoad = async ({ cookies, platform }) => {
     telephonists: telephonists ?? [],
     garrisons: garrisons ?? [],
     military: military ?? [],
+    serviceSwaps: serviceSwaps ?? [],
+    serviceDate,
   };
 };
 
@@ -74,31 +92,40 @@ export const actions: Actions = {
       ...internalHeaders(platform),
     };
 
-    const [officersRes, acasRes, telephonistsRes, garrisonsRes] =
+    const [officersRes, acasRes, telephonistsRes, garrisonsRes, serviceSwapsRes] =
       await Promise.all([
         fetch(`${apiUrl}/officer`, { headers }),
         fetch(`${apiUrl}/aca`, { headers }),
         fetch(`${apiUrl}/telephonist`, { headers }),
         fetch(`${apiUrl}/garrison`, { headers }),
+        fetch(`${apiUrl}/service-swap`, { headers }),
       ]);
 
     ensureAuthenticated(officersRes, cookies);
     ensureAuthenticated(acasRes, cookies);
     ensureAuthenticated(telephonistsRes, cookies);
     ensureAuthenticated(garrisonsRes, cookies);
+    ensureAuthenticated(serviceSwapsRes, cookies);
 
-    const [officersJson, acasJson, telephonistsJson, garrisonsJson] =
-      await Promise.all([
-        officersRes.json(),
-        acasRes.json(),
-        telephonistsRes.json(),
-        garrisonsRes.json(),
-      ]);
+    const [
+      officersJson,
+      acasJson,
+      telephonistsJson,
+      garrisonsJson,
+      serviceSwapsJson,
+    ] = await Promise.all([
+      officersRes.json(),
+      acasRes.json(),
+      telephonistsRes.json(),
+      garrisonsRes.json(),
+      serviceSwapsRes.json(),
+    ]);
 
     const officers: Officer[] = officersJson.data ?? [];
     const acas: ACA[] = acasJson.data ?? [];
     const telephonists: Telephonist[] = telephonistsJson.data ?? [];
     const garrisons: Garrison[] = garrisonsJson.data ?? [];
+    const serviceSwaps: ServiceSwap[] = serviceSwapsJson.data ?? [];
 
     const deletes: Promise<Response>[] = [
       ...officers.map((o) =>
@@ -113,15 +140,25 @@ export const actions: Actions = {
       ...garrisons.map((g) =>
         fetch(`${apiUrl}/garrison/${g.id}`, { method: "DELETE", headers }),
       ),
+      ...serviceSwaps.map((s) =>
+        fetch(`${apiUrl}/service-swap/${s.id}`, { method: "DELETE", headers }),
+      ),
     ];
 
     const results = await Promise.all(deletes);
     for (const r of results) ensureAuthenticated(r, cookies);
 
+    // Vincula o resumo ao dia: grava a data do serviço como "hoje".
+    const serviceDateRes = await fetch(`${apiUrl}/service-date`, {
+      method: "PUT",
+      headers,
+    });
+    ensureAuthenticated(serviceDateRes, cookies);
+
     const failed = results.filter((r) => !r.ok).length;
-    if (failed > 0) {
+    if (failed > 0 || !serviceDateRes.ok) {
       return fail(500, {
-        message: `Falha ao limpar ${failed} item(ns) do resumo.`,
+        message: `Falha ao iniciar novo resumo.`,
       });
     }
   },
