@@ -8,3 +8,4 @@ export type { User } from "./user";
 export { VehicleSituation } from "./vehicle";
 export type { Vehicle } from "./vehicle";
 export { WorkPeriod, WorkSchedule, formatWorkPeriod } from "./work";
+export type { ServiceSwap } from "./service-swap";
