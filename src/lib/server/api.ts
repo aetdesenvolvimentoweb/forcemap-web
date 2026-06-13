@@ -1,7 +1,7 @@
 import { redirect, type Cookies } from "@sveltejs/kit";
 
 export const getApiUrl = (platform: App.Platform | undefined): string => {
-  const base = platform?.env?.API_URL ?? "http://localhost:3333";
+  const base = (platform?.env?.API_URL ?? "http://localhost:3333").replace(/\/+$/, "");
   return `${base}/api/v1`;
 };
 
