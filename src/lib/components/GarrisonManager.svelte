@@ -232,7 +232,7 @@
           </td>
           <td class="align-top">
             <ul class="flex flex-col gap-1">
-              {#each garrison.militaryInGarrison as m}
+              {#each [...garrison.militaryInGarrison].sort((a, b) => a.military.militaryRank.order - b.military.militaryRank.order) as m}
                 <li class="flex flex-wrap items-center gap-2 text-sm">
                   <span class="badge badge-neutral"
                     >{m.military.militaryRank?.abbreviation}</span
@@ -307,7 +307,7 @@
             </div>
           </div>
           <ul class="flex flex-col gap-1 border-t border-base-200 pt-2">
-            {#each garrison.militaryInGarrison as m}
+            {#each [...garrison.militaryInGarrison].sort((a, b) => a.military.militaryRank.order - b.military.militaryRank.order) as m}
               <li class="flex flex-wrap items-center gap-2 text-xs">
                 <span class="badge badge-neutral"
                   >{m.military.militaryRank?.abbreviation}</span

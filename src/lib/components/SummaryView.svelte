@@ -379,7 +379,7 @@
                 {/if}
               </div>
               <ul class="flex flex-col divide-y divide-base-200/60 pt-1">
-                {#each g.militaryInGarrison as m}
+                {#each [...g.militaryInGarrison].sort((a, b) => a.military.militaryRank.order - b.military.militaryRank.order) as m}
                   <li
                     class="flex flex-wrap items-center gap-2 py-2 first:pt-2 last:pb-0"
                   >
