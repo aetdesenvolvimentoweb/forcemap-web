@@ -184,21 +184,22 @@
     {#snippet cards()}
       {#each sorting.sorted as swap}
         <li
-          class="flex items-center justify-between rounded-xl border border-base-200 bg-base-100 px-4 py-3"
+          class="flex items-start justify-between gap-2 rounded-xl border border-base-200 bg-base-100 px-4 py-3"
         >
-          <div class="flex flex-col gap-0.5">
-            <span class="text-sm font-medium">
-              {swap.substitutedMilitary.militaryRank?.abbreviation}
-              {swap.substitutedMilitary.name}
-              <span class="text-base-content/50">→</span>
-              {swap.substituteMilitary.militaryRank?.abbreviation}
-              {swap.substituteMilitary.name}
-            </span>
-            <span class="text-xs text-base-content/60">
-              {formatDateTime(swap.startsAt)} — {formatDateTime(swap.endsAt)}
-            </span>
+          <div class="flex flex-col gap-1 flex-1 min-w-0">
+            <div class="flex flex-wrap items-center gap-1.5">
+              <span class="text-xs text-base-content/60 shrink-0">Substituído:</span>
+              <span class="badge badge-neutral badge-sm whitespace-nowrap">{swap.substitutedMilitary.militaryRank?.abbreviation}</span>
+              <span class="text-sm font-medium">{swap.substitutedMilitary.name}</span>
+            </div>
+            <div class="flex flex-wrap items-center gap-1.5">
+              <span class="text-xs text-base-content/60 shrink-0">Substituto:</span>
+              <span class="badge badge-neutral badge-sm whitespace-nowrap">{swap.substituteMilitary.militaryRank?.abbreviation}</span>
+              <span class="text-sm font-medium">{swap.substituteMilitary.name}</span>
+            </div>
+            <span class="text-xs text-base-content/60">{formatDateTime(swap.startsAt)} a {formatDateTime(swap.endsAt)}</span>
           </div>
-          <div class="flex gap-1">
+          <div class="flex gap-1 shrink-0">
             <button
               type="button"
               class="btn btn-ghost min-h-11 min-w-11"

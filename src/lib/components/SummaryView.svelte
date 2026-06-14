@@ -414,20 +414,24 @@
           <ul class="flex flex-col gap-3">
             {#each serviceSwapsSorted as swap}
               <li class="rounded-lg border border-base-200 bg-base-100 p-3">
-                <div class="flex flex-wrap items-center gap-2">
-                  <span class="badge badge-neutral badge-sm"
-                    >{swap.substitutedMilitary.militaryRank?.abbreviation}</span
-                  >
-                  <span class="text-sm">{swap.substitutedMilitary.name}</span>
-                  <span class="text-base-content/50">→</span>
-                  <span class="badge badge-neutral badge-sm"
-                    >{swap.substituteMilitary.militaryRank?.abbreviation}</span
-                  >
-                  <span class="text-sm">{swap.substituteMilitary.name}</span>
+                <div class="flex flex-col gap-1">
+                  <div class="flex flex-wrap items-center gap-1.5">
+                    <span class="text-xs font-medium text-base-content/60 min-w-22">Substituído:</span>
+                    <span class="badge badge-neutral badge-sm whitespace-nowrap">{swap.substitutedMilitary.militaryRank?.abbreviation}</span>
+                    <span class="text-xs text-base-content/60">RG {swap.substitutedMilitary.rg}</span>
+                    <span class="text-sm">{swap.substitutedMilitary.name}</span>
+                  </div>
+                  <div class="flex flex-wrap items-center gap-1.5">
+                    <span class="text-xs font-medium text-base-content/60 min-w-22">Substituto:</span>
+                    <span class="badge badge-neutral badge-sm whitespace-nowrap">{swap.substituteMilitary.militaryRank?.abbreviation}</span>
+                    <span class="text-xs text-base-content/60">RG {swap.substituteMilitary.rg}</span>
+                    <span class="text-sm">{swap.substituteMilitary.name}</span>
+                  </div>
+                  <div class="flex flex-wrap items-center gap-1.5">
+                    <span class="text-xs font-medium text-base-content/60 min-w-22">Intervalo:</span>
+                    <span class="text-xs text-base-content/60">{formatDateTime(swap.startsAt)} a {formatDateTime(swap.endsAt)}</span>
+                  </div>
                 </div>
-                <p class="mt-1 text-xs text-base-content/60">
-                  {formatDateTime(swap.startsAt)} — {formatDateTime(swap.endsAt)}
-                </p>
               </li>
             {/each}
           </ul>
