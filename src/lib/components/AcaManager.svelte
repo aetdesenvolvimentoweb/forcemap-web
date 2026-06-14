@@ -47,6 +47,17 @@
       .sort((a, b) => a.militaryRank.order - b.militaryRank.order),
   );
 
+  let editAvailableMilitary = $derived(
+    selected
+      ? [
+          ...availableMilitary,
+          ...(selected.military.militaryRank.order >= ACA_RANK_ORDER_MIN
+            ? [selected.military]
+            : []),
+        ].sort((a, b) => a.militaryRank.order - b.militaryRank.order)
+      : availableMilitary,
+  );
+
   let filtered = $derived(
     search.trim() === ""
       ? acas
@@ -224,7 +235,6 @@
 >
   {#if mode === "edit" && selected}
     <input type="hidden" name="id" value={selected.id} />
-    <input type="hidden" name="militaryId" value={selectedMilitaryId} />
   {/if}
 
   {#if mode === "create"}
@@ -246,15 +256,23 @@
       </select>
     </label>
   {:else if selected}
-    <div class="flex flex-col gap-1.5">
+    <label class="flex flex-col gap-1.5">
       <span class="text-sm font-medium text-base-content">Militar</span>
-      <div
-        class="input input-bordered w-full bg-base-200 text-base-content/70 flex items-center"
+      <select
+        name="militaryId"
+        class="select select-bordered w-full"
+        bind:value={selectedMilitaryId}
+        required
       >
-        {selected.military.militaryRank?.abbreviation}
-        {selected.military.name} (RG {selected.military.rg})
-      </div>
-    </div>
+        <option value="" disabled>Selecione...</option>
+        {#each editAvailableMilitary as m}
+          <option value={m.id}>
+            {m.militaryRank.abbreviation}
+            {m.name} (RG {m.rg})
+          </option>
+        {/each}
+      </select>
+    </label>
   {/if}
 
   <label class="flex flex-col gap-1.5">
