@@ -194,7 +194,7 @@
           class="flex items-center justify-between rounded-xl border border-base-200 bg-base-100 px-4 py-3"
         >
           <div class="flex items-center gap-3">
-            <span class="badge badge-neutral"
+            <span class="badge badge-neutral whitespace-nowrap"
               >{officer.military.militaryRank?.abbreviation}</span
             >
             <div class="flex flex-col">

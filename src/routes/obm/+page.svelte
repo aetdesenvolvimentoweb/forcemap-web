@@ -156,10 +156,7 @@
     </div>
   </div>
 
-  <div
-    class="rounded-box border border-base-300 bg-base-100 p-4 md:p-6"
-    role="tabpanel"
-  >
+  <div class="pt-4" role="tabpanel">
     {#if activeTab === "oficiais"}
       <OfficerManager
         officers={data.officers}
