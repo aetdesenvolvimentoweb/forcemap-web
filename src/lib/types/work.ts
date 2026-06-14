@@ -5,9 +5,10 @@ export enum WorkPeriod {
 }
 
 export enum WorkSchedule {
-  ORDINARIO = "Ordinário",
-  AC4_OBM = "AC4 - OBM",
-  AC4_PREFEITURA = "Prefeitura",
+  Ordinario = "Ordinário",
+  AC4OBM = "AC4 - OBM",
+  AC4Prefeitura = "AC4 - Prefeitura",
+  Sobreaviso = "Sobreaviso",
 }
 
 export function formatWorkPeriod(period: WorkPeriod | string | undefined | null): string {
