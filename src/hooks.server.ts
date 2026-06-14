@@ -1,5 +1,6 @@
 import { redirect } from "@sveltejs/kit";
 import type { Handle } from "@sveltejs/kit";
+import { getApiUrl, internalHeaders, isProd, jwtSecondsUntilExpiry } from "$lib/server/api";
 
 const PROTECTED_ROUTES = ["/obm"];
 
@@ -23,32 +24,63 @@ function clearAuthCookies(event: Parameters<Handle>[0]["event"]): void {
   event.cookies.delete("refresh_token", { path: "/" });
 }
 
+function decodeUserFromToken(token: string): App.Locals["user"] | null {
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    return { id: payload.userId, militaryId: payload.militaryId, role: payload.role };
+  } catch {
+    return null;
+  }
+}
+
+function isTokenExpired(token: string): boolean {
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    const nowInSeconds = Math.floor(Date.now() / 1000);
+    return typeof payload.exp === "number" && payload.exp <= nowInSeconds;
+  } catch {
+    return true;
+  }
+}
+
 export const handle: Handle = async ({ event, resolve }) => {
   const accessToken = event.cookies.get("access_token");
+  const refreshToken = event.cookies.get("refresh_token");
 
-  if (!accessToken) {
-    event.locals.user = null;
-  } else {
+  if (accessToken && !isTokenExpired(accessToken)) {
+    event.locals.user = decodeUserFromToken(accessToken);
+    if (!event.locals.user) clearAuthCookies(event);
+  } else if (refreshToken) {
+    // Access token ausente ou expirado: tenta renovar usando o refresh token.
     try {
-      const payload = JSON.parse(atob(accessToken.split(".")[1]));
-      const nowInSeconds = Math.floor(Date.now() / 1000);
-      const isExpired =
-        typeof payload.exp === "number" && payload.exp <= nowInSeconds;
+      const apiUrl = getApiUrl(event.platform);
+      const response = await fetch(`${apiUrl}/refresh-token`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...internalHeaders(event.platform) },
+        body: JSON.stringify({ refreshToken }),
+      });
 
-      if (isExpired) {
+      if (response.ok) {
+        const { data: body } = await response.json();
+        event.cookies.set("access_token", body.accessToken, {
+          httpOnly: true,
+          secure: isProd(event.platform),
+          sameSite: "lax",
+          path: "/",
+          maxAge: body.expiresIn,
+        });
+        event.locals.user = decodeUserFromToken(body.accessToken);
+      } else {
         clearAuthCookies(event);
         event.locals.user = null;
-      } else {
-        event.locals.user = {
-          id: payload.userId,
-          militaryId: payload.militaryId,
-          role: payload.role,
-        };
       }
     } catch {
       clearAuthCookies(event);
       event.locals.user = null;
     }
+  } else {
+    if (accessToken) clearAuthCookies(event);
+    event.locals.user = null;
   }
 
   const isProtected = PROTECTED_ROUTES.some((route) =>
