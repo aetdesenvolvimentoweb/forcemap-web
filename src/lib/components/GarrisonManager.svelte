@@ -314,7 +314,7 @@
                 >
                 <span>{m.military.name}</span>
                 <span class="text-base-content/60"
-                  >· {formatWorkPeriod(m.workPeriod)} · {m.workSchedule}</span
+                  >RG {m.military.rg} · {formatWorkPeriod(m.workPeriod)} · {m.workSchedule}</span
                 >
               </li>
             {/each}

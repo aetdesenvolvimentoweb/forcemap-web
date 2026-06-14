@@ -147,10 +147,12 @@
         <tr>
           <td>
             {swap.substitutedMilitary.militaryRank?.abbreviation}
+            RG {swap.substitutedMilitary.rg}
             {swap.substitutedMilitary.name}
           </td>
           <td>
             {swap.substituteMilitary.militaryRank?.abbreviation}
+            RG {swap.substituteMilitary.rg}
             {swap.substituteMilitary.name}
           </td>
           <td>{formatDateTime(swap.startsAt)}</td>
@@ -190,11 +192,13 @@
             <div class="flex flex-wrap items-center gap-1.5">
               <span class="text-xs text-base-content/60 shrink-0">Substituído:</span>
               <span class="badge badge-neutral badge-sm whitespace-nowrap">{swap.substitutedMilitary.militaryRank?.abbreviation}</span>
+              <span class="text-xs text-base-content/60">RG {swap.substitutedMilitary.rg}</span>
               <span class="text-sm font-medium">{swap.substitutedMilitary.name}</span>
             </div>
             <div class="flex flex-wrap items-center gap-1.5">
               <span class="text-xs text-base-content/60 shrink-0">Substituto:</span>
               <span class="badge badge-neutral badge-sm whitespace-nowrap">{swap.substituteMilitary.militaryRank?.abbreviation}</span>
+              <span class="text-xs text-base-content/60">RG {swap.substituteMilitary.rg}</span>
               <span class="text-sm font-medium">{swap.substituteMilitary.name}</span>
             </div>
             <span class="text-xs text-base-content/60">{formatDateTime(swap.startsAt)} a {formatDateTime(swap.endsAt)}</span>
